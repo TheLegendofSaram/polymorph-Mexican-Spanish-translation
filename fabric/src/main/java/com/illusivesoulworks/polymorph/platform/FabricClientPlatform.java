@@ -17,7 +17,7 @@
 
 package com.illusivesoulworks.polymorph.platform;
 
-import com.illusivesoulworks.polymorph.mixin.AccessorAbstractContainerScreen;
+import com.illusivesoulworks.polymorph.mixin.core.AccessorAbstractContainerScreen;
 import com.illusivesoulworks.polymorph.platform.services.IClientPlatform;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 

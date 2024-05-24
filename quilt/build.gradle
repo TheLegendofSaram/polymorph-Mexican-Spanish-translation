@@ -44,6 +44,9 @@ dependencies {
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
     implementation project(":common")
 
+    modCompileOnly "curse.maven:quickbench-914551:4767801"
+//    modLocalRuntime "curse.maven:quickbench-914551:4767801"
+
     modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${cca_version}"
     modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${cca_version}"
     modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-block:${cca_version}"

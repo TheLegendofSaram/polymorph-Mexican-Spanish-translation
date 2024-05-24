@@ -39,6 +39,7 @@ public class IntegratedMixinPlugin implements IMixinConfigPlugin, IMixinErrorHan
   static {
     CLASS_TO_MOD.put("dev.shadowsoffire.fastbench.", PolymorphIntegrations.Mod.FASTWORKBENCH.getId());
     CLASS_TO_MOD.put("dev.shadowsoffire.fastsuite.", PolymorphIntegrations.Mod.FASTSUITE.getId());
+    CLASS_TO_MOD.put("tfar.fastbench.", PolymorphIntegrations.Mod.QUICKBENCH.getId());
   }
 
   @Override

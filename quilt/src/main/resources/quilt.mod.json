@@ -78,7 +78,8 @@
   ],
   "mixin": [
     "polymorph.mixins.json",
-    "polymorph.quilt.mixins.json"
+    "polymorph.quilt.mixins.json",
+    "polymorph-integrations.quilt.mixins.json"
   ],
   "minecraft": {
     "environment": "*"

@@ -66,8 +66,9 @@ public class PolymorphIntegrations {
     }
 
     for (Mod mod : Mod.values()) {
+      Object val = config.get(mod.getId());
 
-      if (config.get(mod.getId())) {
+      if (val instanceof Boolean bool && bool) {
         ACTIVATED.add(mod.getId());
       }
     }
@@ -150,6 +151,7 @@ public class PolymorphIntegrations {
   }
 
   public enum Mod {
+    QUICKBENCH("quickbench", true, Loader.FABRIC),
     FASTFURNACE("fastfurnace", true, Loader.FORGE),
     FASTWORKBENCH("fastbench", true, Loader.FORGE),
     FASTSUITE("fastsuite", true, Loader.FORGE);

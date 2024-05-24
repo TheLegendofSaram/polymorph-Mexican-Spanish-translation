@@ -33,7 +33,8 @@
   },
   "mixins": [
     "polymorph.mixins.json",
-    "polymorph.fabric.mixins.json"
+    "polymorph.fabric.mixins.json",
+    "polymorph-integrations.fabric.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.14.23",
