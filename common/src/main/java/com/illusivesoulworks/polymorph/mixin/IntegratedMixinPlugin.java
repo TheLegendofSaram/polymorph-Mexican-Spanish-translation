@@ -36,6 +36,8 @@ public class IntegratedMixinPlugin implements IMixinConfigPlugin, IMixinErrorHan
 
   private static final Map<String, String> CLASS_TO_MOD = new HashMap<>();
 
+  private static boolean isConfigLoaded = false;
+
   static {
     CLASS_TO_MOD.put("dev.shadowsoffire.fastbench.", PolymorphIntegrations.Mod.FASTWORKBENCH.getId());
     CLASS_TO_MOD.put("dev.shadowsoffire.fastsuite.", PolymorphIntegrations.Mod.FASTSUITE.getId());
@@ -45,7 +47,6 @@ public class IntegratedMixinPlugin implements IMixinConfigPlugin, IMixinErrorHan
   @Override
   public void onLoad(String mixinPackage) {
     Mixins.registerErrorHandlerClass("com.illusivesoulworks.polymorph.mixin.IntegratedMixinPlugin");
-    PolymorphIntegrations.loadConfig();
   }
 
   @Override
@@ -55,6 +56,11 @@ public class IntegratedMixinPlugin implements IMixinConfigPlugin, IMixinErrorHan
 
   @Override
   public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+
+    if (!isConfigLoaded) {
+      PolymorphIntegrations.loadConfig();
+      isConfigLoaded = true;
+    }
 
     for (Map.Entry<String, String> entry : CLASS_TO_MOD.entrySet()) {
       String modId = entry.getValue();
