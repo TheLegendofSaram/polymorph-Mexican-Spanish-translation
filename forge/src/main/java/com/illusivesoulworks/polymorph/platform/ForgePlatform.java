@@ -23,7 +23,6 @@ import com.illusivesoulworks.polymorph.api.common.capability.IPlayerRecipeData;
 import com.illusivesoulworks.polymorph.api.common.capability.IStackRecipeData;
 import com.illusivesoulworks.polymorph.common.PolymorphForgeCapabilities;
 import com.illusivesoulworks.polymorph.common.PolymorphForgePacketDistributor;
-import com.illusivesoulworks.polymorph.common.integration.PolymorphIntegrations;
 import com.illusivesoulworks.polymorph.platform.services.IPlatform;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -40,11 +39,6 @@ public class ForgePlatform implements IPlatform {
 
   private static final IPolymorphPacketDistributor PACKET_DISTRIBUTOR =
       new PolymorphForgePacketDistributor();
-
-  @Override
-  public PolymorphIntegrations.Loader getLoader() {
-    return PolymorphIntegrations.Loader.FORGE;
-  }
 
   @Override
   public Path getGameDir() {

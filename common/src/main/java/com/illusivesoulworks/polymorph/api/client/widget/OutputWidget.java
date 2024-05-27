@@ -23,6 +23,7 @@ import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -44,15 +45,16 @@ public class OutputWidget extends AbstractWidget {
   public void renderWidget(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY,
                            float partialTicks) {
     Minecraft minecraft = Minecraft.getInstance();
-    int j = 0;
+    PoseStack poseStack = guiGraphics.pose();
+    WidgetSprites sprite =
+        this.highlighted ? AbstractRecipesWidget.CURRENT_OUTPUT : AbstractRecipesWidget.OUTPUT;
+    ResourceLocation texture = sprite.enabled();
 
     if (this.getX() + 25 > mouseX && this.getX() <= mouseX &&
         this.getY() + 25 > mouseY && this.getY() <= mouseY) {
-      j += 25;
+      texture = sprite.enabledFocused();
     }
-    PoseStack poseStack = guiGraphics.pose();
-    guiGraphics.blit(AbstractRecipesWidget.WIDGETS, this.getX(), this.getY(), 600,
-        this.highlighted ? 41 : 16, j, this.width, this.height, 256, 256);
+    guiGraphics.blitSprite(texture, this.getX(), this.getY(), 600, this.width, this.height);
     int k = 4;
     poseStack.pushPose();
     poseStack.translate(0, 0, 700);

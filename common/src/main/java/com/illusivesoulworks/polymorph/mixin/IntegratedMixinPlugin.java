@@ -20,9 +20,7 @@ package com.illusivesoulworks.polymorph.mixin;
 import com.illusivesoulworks.polymorph.PolymorphConstants;
 import com.illusivesoulworks.polymorph.common.integration.PolymorphIntegrations;
 import com.illusivesoulworks.polymorph.platform.Services;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.Mixins;
@@ -34,18 +32,12 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 @SuppressWarnings("unused")
 public class IntegratedMixinPlugin implements IMixinConfigPlugin, IMixinErrorHandler {
 
-  private static final Map<String, String> CLASS_TO_MOD = new HashMap<>();
-
-  static {
-    CLASS_TO_MOD.put("dev.shadowsoffire.fastbench.", PolymorphIntegrations.Mod.FASTWORKBENCH.getId());
-    CLASS_TO_MOD.put("dev.shadowsoffire.fastsuite.", PolymorphIntegrations.Mod.FASTSUITE.getId());
-    CLASS_TO_MOD.put("tfar.fastbench.", PolymorphIntegrations.Mod.QUICKBENCH.getId());
-  }
+  private static final String PREFIX = "com.illusivesoulworks.polymorph.mixin.integration.";
+  private static boolean isLoaded = false;
 
   @Override
   public void onLoad(String mixinPackage) {
     Mixins.registerErrorHandlerClass("com.illusivesoulworks.polymorph.mixin.IntegratedMixinPlugin");
-    PolymorphIntegrations.loadConfig();
   }
 
   @Override
@@ -56,12 +48,14 @@ public class IntegratedMixinPlugin implements IMixinConfigPlugin, IMixinErrorHan
   @Override
   public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
 
-    for (Map.Entry<String, String> entry : CLASS_TO_MOD.entrySet()) {
-      String modId = entry.getValue();
+    if (!isLoaded) {
+      PolymorphIntegrations.load();
+      isLoaded = true;
+    }
 
-      if (targetClassName.startsWith(entry.getKey())) {
-        return PolymorphIntegrations.isActive(modId) && Services.PLATFORM.isModFileLoaded(modId);
-      }
+    if (mixinClassName.startsWith(PREFIX)) {
+      String modId = mixinClassName.substring(PREFIX.length()).split("\\.")[0];
+      return PolymorphIntegrations.isActive(modId) && Services.PLATFORM.isModFileLoaded(modId);
     }
     return true;
   }
@@ -77,14 +71,12 @@ public class IntegratedMixinPlugin implements IMixinConfigPlugin, IMixinErrorHan
   }
 
   @Override
-  public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName,
-                       IMixinInfo mixinInfo) {
+  public void postApply(String s, ClassNode classNode, String s1, IMixinInfo iMixinInfo) {
 
   }
 
   @Override
-  public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName,
-                        IMixinInfo mixinInfo) {
+  public void preApply(String s, ClassNode classNode, String s1, IMixinInfo iMixinInfo) {
 
   }
 
@@ -97,19 +89,10 @@ public class IntegratedMixinPlugin implements IMixinConfigPlugin, IMixinErrorHan
   @Override
   public ErrorAction onApplyError(String targetClassName, Throwable th, IMixinInfo mixin,
                                   ErrorAction action) {
+    String pack = mixin.getConfig().getMixinPackage();
 
-    if (mixin.getConfig().getMixinPackage()
-        .startsWith("com.illusivesoulworks.polymorph.mixin.integration")) {
-      String modId = "{MOD NOT FOUND - THIS SHOULD NOT HAPPEN}";
-
-      for (Map.Entry<String, String> entry : CLASS_TO_MOD.entrySet()) {
-        String id = entry.getValue();
-
-        if (targetClassName.startsWith(entry.getKey())) {
-          modId = id;
-          break;
-        }
-      }
+    if (pack.startsWith(PREFIX)) {
+      String modId = pack.substring(PREFIX.length());
       PolymorphIntegrations.disable(modId);
       PolymorphConstants.LOG.error("Polymorph encountered an error while transforming: {}",
           targetClassName);

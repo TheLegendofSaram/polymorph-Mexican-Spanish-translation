@@ -2,16 +2,17 @@ modLoader="javafml"
 loaderVersion="[41,)"
 license="${license}"
 logoBlur=false
-issueTrackerURL="${issue_tracker}"
+issueTrackerURL="${issues_url}"
 logoFile="${mod_id}_icon.png"
 [[mods]]
-modId="${mod_id}"
-version="${version}"
-displayName="${mod_name}"
-authors="${mod_author}"
-description='''
-${mod_description}
-'''
+    modId="${mod_id}"
+    version="${version}"
+    displayName="${mod_name}"
+    displayURL = "${sources_url}"
+    authors="${mod_author}"
+    description='''
+    ${description}
+    '''
 [[dependencies.polymorph]]
     modId="forge"
     mandatory=true
@@ -21,6 +22,6 @@ ${mod_description}
 [[dependencies.polymorph]]
     modId="minecraft"
     mandatory=true
-    versionRange="${forge_mc_version_range}"
+    versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"

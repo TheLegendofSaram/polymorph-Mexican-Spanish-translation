@@ -1,12 +1,14 @@
 plugins {
-    id 'fabric-loom' version '1.5-SNAPSHOT'
-    id 'maven-publish'
+    id 'java'
     id 'idea'
-    id 'net.darkhax.curseforgegradle' version '1.+'
+    id 'maven-publish'
+    id 'fabric-loom' version '1.2-SNAPSHOT'
     id 'com.modrinth.minotaur' version '2.+'
+    id 'net.darkhax.curseforgegradle' version '1.+'
 }
-
-archivesBaseName = "${mod_id}-fabric"
+base {
+    archivesName = "${mod_id}-fabric"
+}
 
 repositories {
     maven {
@@ -23,15 +25,11 @@ dependencies {
     })
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
-    modImplementation group: 'com.illusivesoulworks.spectrelib', name: 'spectrelib-fabric', version: "${spectrelib_version}"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
     implementation project(":common")
-    implementation group: 'com.electronwill.night-config', name: 'core', version: '3.6.5'
 
-    include group: 'com.illusivesoulworks.spectrelib', name: 'spectrelib-fabric', version: "${spectrelib_version}"
-
-    modCompileOnly "curse.maven:quickbench-914551:4767801"
-//    modLocalRuntime "curse.maven:quickbench-914551:4767801"
+    modCompileOnly "curse.maven:quickbench-914551:4767620"
+    modRuntimeOnly "curse.maven:quickbench-914551:4767620"
 
     modApi "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cca_version}"
     modApi "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cca_version}"
@@ -51,6 +49,12 @@ configurations.all {
 }
 
 loom {
+    if (project(":common").file("src/main/resources/${mod_id}.accesswidener").exists()) {
+        accessWidenerPath.set(project(":common").file("src/main/resources/${mod_id}.accesswidener"))
+    }
+    mixin {
+        defaultRefmapName.set("${mod_id}.refmap.json")
+    }
     runs {
         client {
             client()
@@ -67,48 +71,27 @@ loom {
     }
 }
 
+tasks.withType(JavaCompile).configureEach {
+    source(project(":common").sourceSets.main.allSource)
+}
+tasks.withType(Javadoc).configureEach {
+    source(project(":common").sourceSets.main.allJava)
+}
+tasks.named("sourcesJar", Jar) {
+    from(project(":common").sourceSets.main.allSource)
+}
 
 processResources {
     from project(":common").sourceSets.main.resources
-    inputs.property "version", project.version
-
-    filesMatching("fabric.mod.json") {
-        expand 'version': project.version, 'fabric_mc_version_range': project.fabric_mc_version_range, 'license': project.license,
-                'mod_id': project.mod_id, 'mod_author': project.mod_author, 'mod_description': project.mod_description,
-                'mod_name': project.mod_name, 'issue_tracker': project.issue_tracker
-    }
-
-    filesMatching("pack.mcmeta") {
-        expand 'mod_name': project.mod_name
-    }
-
-    filesMatching('*.mixins.json') {
-        expand "refmap_target": "${archivesBaseName}-"
-    }
-}
-
-tasks.withType(JavaCompile) {
-    source(project(":common").sourceSets.main.allSource)
-}
-
-sourceSets {
-    main {
-        resources {
-            srcDirs += '../licenses'
-        }
-    }
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId project.group
-            artifactId project.archivesBaseName
-            version project.version
+            artifactId base.archivesName.get()
             from components.java
         }
     }
-
     repositories {
         maven {
             url "file://" + System.getenv("local_maven")
@@ -127,8 +110,14 @@ task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge)
         mainFile.addGameVersion("${it}")
     }
     mainFile.addRequirement("fabric-api")
-    mainFile.addEmbedded("cardinal-components-api")
     mainFile.withAdditionalFile(sourcesJar)
+
+    doLast {
+
+        if (project.hasProperty('cf_page') && mainFile.curseFileId != null) {
+            project.ext.curse_link = "${cf_page}/files/${mainFile.curseFileId}"
+        }
+    }
 }
 
 modrinth {
@@ -142,6 +131,12 @@ modrinth {
     gameVersions = "${release_versions}".split(",") as List<String>
     dependencies {
         required.project "fabric-api"
-        embedded.project "cardinal-components-api"
+    }
+}
+
+tasks.modrinth.doLast {
+
+    if (project.hasProperty('modrinth_page') && tasks.modrinth.newVersion != null) {
+        project.ext.modrinth_link = "${modrinth_page}/version/${tasks.modrinth.newVersion.id}"
     }
 }

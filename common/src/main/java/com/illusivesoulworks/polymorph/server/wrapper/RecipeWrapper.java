@@ -5,28 +5,29 @@ import java.util.List;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 public class RecipeWrapper {
 
-  private final Recipe<?> recipe;
+  private final RecipeHolder<?> recipe;
   private final List<IngredientWrapper> ingredients;
 
-  public RecipeWrapper(Recipe<?> pRecipe) {
+  public RecipeWrapper(RecipeHolder<?> pRecipe) {
     this.recipe = pRecipe;
     this.ingredients = new ArrayList<>();
 
-    for (Ingredient ingredient : this.recipe.getIngredients()) {
+    for (Ingredient ingredient : this.recipe.value().getIngredients()) {
       IngredientWrapper wrapped = new IngredientWrapper(ingredient);
       this.ingredients.add(wrapped);
     }
   }
 
   public Recipe<?> getRecipe() {
-    return this.recipe;
+    return this.recipe.value();
   }
 
   public ResourceLocation getId() {
-    return this.recipe.getId();
+    return this.recipe.id();
   }
 
   public List<IngredientWrapper> getIngredients() {

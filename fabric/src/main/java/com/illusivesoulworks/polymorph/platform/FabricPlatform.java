@@ -23,7 +23,6 @@ import com.illusivesoulworks.polymorph.api.common.capability.IPlayerRecipeData;
 import com.illusivesoulworks.polymorph.api.common.capability.IStackRecipeData;
 import com.illusivesoulworks.polymorph.common.PolymorphFabricPacketDistributor;
 import com.illusivesoulworks.polymorph.common.components.PolymorphFabricComponents;
-import com.illusivesoulworks.polymorph.common.integration.PolymorphIntegrations;
 import com.illusivesoulworks.polymorph.platform.services.IPlatform;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -38,11 +37,6 @@ public class FabricPlatform implements IPlatform {
 
   private static final IPolymorphPacketDistributor PACKET_DISTRIBUTOR =
       new PolymorphFabricPacketDistributor();
-
-  @Override
-  public PolymorphIntegrations.Loader getLoader() {
-    return PolymorphIntegrations.Loader.FABRIC;
-  }
 
   @Override
   public Path getGameDir() {

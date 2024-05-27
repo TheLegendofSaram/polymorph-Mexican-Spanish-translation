@@ -29,19 +29,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
 public interface IRecipeData<E> {
 
-  <T extends Recipe<C>, C extends Container> Optional<T> getRecipe(RecipeType<T> type, C inventory,
-                                                                   Level level, List<T> recipes);
+  <T extends Recipe<C>, C extends Container> Optional<RecipeHolder<T>> getRecipe(RecipeType<T> type, C inventory,
+                                                                   Level level,
+                                                                   List<RecipeHolder<T>> recipes);
 
-  void selectRecipe(@Nonnull Recipe<?> recipe);
+  void selectRecipe(@Nonnull RecipeHolder<?> recipe);
 
-  Optional<? extends Recipe<?>> getSelectedRecipe();
+  Optional<RecipeHolder<?>> getSelectedRecipe();
 
-  void setSelectedRecipe(@Nonnull Recipe<?> recipe);
+  void setSelectedRecipe(@Nonnull RecipeHolder<?> recipe);
 
   @Nonnull
   SortedSet<IRecipePair> getRecipesList();

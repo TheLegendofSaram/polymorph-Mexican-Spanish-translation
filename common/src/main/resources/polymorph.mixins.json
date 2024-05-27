@@ -18,5 +18,5 @@
     "defaultRequire": 1,
     "maxShiftBy": 3
   },
-  "refmap": "${refmap_target}refmap.json"
+  "refmap": "${mod_id}.refmap.json"
 }

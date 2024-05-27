@@ -17,20 +17,16 @@
 
 package com.illusivesoulworks.polymorph.common.integration;
 
-import com.electronwill.nightconfig.core.ConfigSpec;
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.google.common.collect.ImmutableSet;
 import com.illusivesoulworks.polymorph.platform.Services;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class PolymorphIntegrations {
@@ -42,38 +38,11 @@ public class PolymorphIntegrations {
   private static final Map<String, Supplier<Supplier<AbstractCompatibilityModule>>> INTEGRATIONS =
       Services.INTEGRATION_PLATFORM.createCompatibilityModules();
 
-  public static void loadConfig() {
-    ConfigSpec spec = new ConfigSpec();
-    List<Mod> mods = Arrays.asList(Mod.values(Services.PLATFORM.getLoader()));
-
-    if (mods.isEmpty()) {
-      return;
-    }
-    Collections.sort(mods);
-
-    for (Mod mod : mods) {
-      spec.define(mod.getId(), mod.getDefaultValue());
-    }
-    CommentedFileConfig config =
-        CommentedFileConfig.of(
-            Services.PLATFORM.getConfigDir().resolve("polymorph-integrations.toml"));
-    config.load();
-    config.setComment(mods.get(0).getId(),
-        " Please be aware that enabling any third-party mod integration introduces instability and performance overheads, caution is strongly advised.\n If crashes or issues arise, disable the related modules as the first step in troubleshooting and report the issue to Polymorph.");
-
-    if (!spec.isCorrect(config)) {
-      spec.correct(config);
-    }
+  public static void load() {
 
     for (Mod mod : Mod.values()) {
-      Object val = config.get(mod.getId());
-
-      if (val instanceof Boolean bool && bool) {
-        ACTIVATED.add(mod.getId());
-      }
+      ACTIVATED.add(mod.getId());
     }
-    config.save();
-    config.close();
   }
 
   public static void init() {
@@ -100,7 +69,7 @@ public class PolymorphIntegrations {
   }
 
   public static void selectRecipe(BlockEntity blockEntity, AbstractContainerMenu containerMenu,
-                                  Recipe<?> recipe) {
+                                  RecipeHolder<?> recipe) {
 
     for (AbstractCompatibilityModule integration : PolymorphIntegrations.get()) {
 
@@ -112,7 +81,7 @@ public class PolymorphIntegrations {
   }
 
   public static void selectRecipe(AbstractContainerMenu containerMenu,
-                                  Recipe<?> recipe) {
+                                  RecipeHolder<?> recipe) {
 
     for (AbstractCompatibilityModule integration : PolymorphIntegrations.get()) {
 
@@ -152,9 +121,9 @@ public class PolymorphIntegrations {
 
   public enum Mod {
     QUICKBENCH("quickbench", true, Loader.FABRIC),
-    FASTFURNACE("fastfurnace", true, Loader.FORGE),
-    FASTWORKBENCH("fastbench", true, Loader.FORGE),
-    FASTSUITE("fastsuite", true, Loader.FORGE);
+    FASTFURNACE("fastfurnace", true, Loader.NEOFORGE),
+    FASTWORKBENCH("fastbench", true, Loader.NEOFORGE),
+    FASTSUITE("fastsuite", true, Loader.NEOFORGE);
 
     private final String id;
     private final boolean defaultValue;
@@ -189,6 +158,7 @@ public class PolymorphIntegrations {
 
   public enum Loader {
     FABRIC,
-    FORGE
+    FORGE,
+    NEOFORGE
   }
 }

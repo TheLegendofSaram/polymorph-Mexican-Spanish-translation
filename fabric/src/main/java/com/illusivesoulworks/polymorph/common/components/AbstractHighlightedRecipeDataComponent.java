@@ -26,6 +26,7 @@ import javax.annotation.Nonnull;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public abstract class AbstractHighlightedRecipeDataComponent<E extends BlockEntity>
@@ -36,12 +37,12 @@ public abstract class AbstractHighlightedRecipeDataComponent<E extends BlockEnti
   }
 
   @Override
-  public void selectRecipe(@Nonnull Recipe<?> recipe) {
+  public void selectRecipe(@Nonnull RecipeHolder<?> recipe) {
     super.selectRecipe(recipe);
 
     for (ServerPlayer listeningPlayer : this.getListeners()) {
       PolymorphApi.common().getPacketDistributor()
-          .sendHighlightRecipeS2C(listeningPlayer, recipe.getId());
+          .sendHighlightRecipeS2C(listeningPlayer, recipe.id());
     }
   }
 
@@ -51,7 +52,7 @@ public abstract class AbstractHighlightedRecipeDataComponent<E extends BlockEnti
     ResourceLocation selected = null;
 
     if (!recipesList.isEmpty()) {
-      selected = this.getSelectedRecipe().map(Recipe::getId)
+      selected = this.getSelectedRecipe().map(RecipeHolder::id)
           .orElse(recipesList.first().getResourceLocation());
     }
     return new Pair<>(recipesList, selected);

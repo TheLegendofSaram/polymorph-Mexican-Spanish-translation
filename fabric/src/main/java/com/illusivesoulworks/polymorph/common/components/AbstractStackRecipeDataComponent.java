@@ -41,16 +41,18 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-public abstract class AbstractStackRecipeDataComponent extends ItemComponent implements IStackRecipeData {
+public abstract class AbstractStackRecipeDataComponent extends ItemComponent
+    implements IStackRecipeData {
 
   private final SortedSet<IRecipePair> recipesList;
   private final ItemStack owner;
 
-  private Recipe<?> lastRecipe;
-  private Recipe<?> selectedRecipe;
+  private RecipeHolder<?> lastRecipe;
+  private RecipeHolder<?> selectedRecipe;
   private ResourceLocation loadedRecipe;
   private boolean isFailing;
 
@@ -62,19 +64,20 @@ public abstract class AbstractStackRecipeDataComponent extends ItemComponent imp
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T extends Recipe<C>, C extends Container> Optional<T> getRecipe(RecipeType<T> type,
-                                                                          C inventory, Level level,
-                                                                          List<T> recipesList) {
+  public <T extends Recipe<C>, C extends Container> Optional<RecipeHolder<T>> getRecipe(
+      RecipeType<T> type,
+      C inventory, Level level,
+      List<RecipeHolder<T>> recipesList) {
     this.getLoadedRecipe().flatMap(id -> level.getRecipeManager().byKey(id))
         .ifPresent(selected -> {
           try {
-            if (selected.getType() == type &&
-                (((T) selected).matches(inventory, level) || isEmpty(inventory))) {
+            if (selected.value().getType() == type &&
+                (((T) selected.value()).matches(inventory, level) || isEmpty(inventory))) {
               this.setSelectedRecipe(selected);
             }
           } catch (ClassCastException e) {
             PolymorphConstants.LOG.error("Recipe {} does not match inventory {}",
-                selected.getId(), inventory);
+                selected.id(), inventory);
           }
           this.loadedRecipe = null;
         });
@@ -84,27 +87,28 @@ public abstract class AbstractStackRecipeDataComponent extends ItemComponent imp
       this.sendRecipesListToListeners(true);
       return Optional.empty();
     }
-    AtomicReference<T> ref = new AtomicReference<>(null);
+    AtomicReference<RecipeHolder<T>> ref = new AtomicReference<>(null);
     this.getLastRecipe().ifPresent(recipe -> {
       try {
-        if (recipe.getType() == type && ((T) recipe).matches(inventory, level)) {
+        if (recipe.value().getType() == type && ((T) recipe.value()).matches(inventory, level)) {
           this.getSelectedRecipe().ifPresent(selected -> {
             try {
-              if (selected.getType() == type && ((T) selected).matches(inventory, level)) {
-                ref.set((T) selected);
+              if (selected.value().getType() == type &&
+                  ((T) selected.value()).matches(inventory, level)) {
+                ref.set((RecipeHolder<T>) selected);
               }
             } catch (ClassCastException e) {
               PolymorphConstants.LOG.error("Recipe {} does not match inventory {}",
-                  selected.getId(), inventory);
+                  selected.id(), inventory);
             }
           });
         }
       } catch (ClassCastException e) {
-        PolymorphConstants.LOG.error("Recipe {} does not match inventory {}", recipe.getId(),
+        PolymorphConstants.LOG.error("Recipe {} does not match inventory {}", recipe.id(),
             inventory);
       }
     });
-    T result = ref.get();
+    RecipeHolder<T> result = ref.get();
 
     if (result != null) {
       this.setFailing(false);
@@ -112,7 +116,7 @@ public abstract class AbstractStackRecipeDataComponent extends ItemComponent imp
       return Optional.of(result);
     }
     SortedSet<IRecipePair> newDataset = new TreeSet<>();
-    List<T> recipes =
+    List<RecipeHolder<T>> recipes =
         recipesList.isEmpty() ? level.getRecipeManager().getRecipesFor(type, inventory, level) :
             recipesList;
 
@@ -122,14 +126,14 @@ public abstract class AbstractStackRecipeDataComponent extends ItemComponent imp
       return Optional.empty();
     }
 
-    for (T entry : recipes) {
-      ResourceLocation id = entry.getId();
+    for (RecipeHolder<T> entry : recipes) {
+      ResourceLocation id = entry.id();
 
       if (ref.get() == null &&
-          this.getSelectedRecipe().map(recipe -> recipe.getId().equals(id)).orElse(false)) {
+          this.getSelectedRecipe().map(recipe -> recipe.id().equals(id)).orElse(false)) {
         ref.set(entry);
       }
-      newDataset.add(new RecipePair(id, entry.assemble(inventory, level.registryAccess())));
+      newDataset.add(new RecipePair(id, entry.value().assemble(inventory, level.registryAccess())));
     }
     this.setRecipesList(newDataset);
     result = ref.get();
@@ -142,16 +146,16 @@ public abstract class AbstractStackRecipeDataComponent extends ItemComponent imp
   }
 
   @Override
-  public Optional<? extends Recipe<?>> getSelectedRecipe() {
+  public Optional<RecipeHolder<?>> getSelectedRecipe() {
     return Optional.ofNullable(this.selectedRecipe);
   }
 
   @Override
-  public void setSelectedRecipe(@Nonnull Recipe<?> recipe) {
+  public void setSelectedRecipe(@Nonnull RecipeHolder<?> recipe) {
     this.selectedRecipe = recipe;
   }
 
-  public Optional<? extends Recipe<?>> getLastRecipe() {
+  public Optional<RecipeHolder<?>> getLastRecipe() {
     return Optional.ofNullable(this.lastRecipe);
   }
 
@@ -192,7 +196,7 @@ public abstract class AbstractStackRecipeDataComponent extends ItemComponent imp
   }
 
   @Override
-  public void selectRecipe(@Nonnull Recipe<?> recipe) {
+  public void selectRecipe(@Nonnull RecipeHolder<?> recipe) {
     this.setSelectedRecipe(recipe);
   }
 
@@ -265,7 +269,7 @@ public abstract class AbstractStackRecipeDataComponent extends ItemComponent imp
   public CompoundTag writeNBT() {
     CompoundTag nbt = new CompoundTag();
     this.getSelectedRecipe().ifPresent(
-        selected -> nbt.putString("SelectedRecipe", this.selectedRecipe.getId().toString()));
+        selected -> nbt.putString("SelectedRecipe", this.selectedRecipe.id().toString()));
     Set<IRecipePair> dataset = this.getRecipesList();
 
     if (!dataset.isEmpty()) {

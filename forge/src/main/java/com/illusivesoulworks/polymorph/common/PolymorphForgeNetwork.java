@@ -33,27 +33,29 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.network.Channel;
+import net.minecraftforge.network.ChannelBuilder;
+import net.minecraftforge.network.SimpleChannel;
 
 public class PolymorphForgeNetwork {
 
-  private static final String PTC_VERSION = "1";
+  private static final int PTC_VERSION = 1;
 
   private static SimpleChannel instance;
-  private static int id = 0;
 
   public static SimpleChannel get() {
     return instance;
   }
 
   public static void setup() {
-    instance =
-        NetworkRegistry.ChannelBuilder.named(new ResourceLocation(PolymorphApi.MOD_ID, "main"))
-            .networkProtocolVersion(() -> PTC_VERSION).clientAcceptedVersions(PTC_VERSION::equals)
-            .serverAcceptedVersions(PTC_VERSION::equals).simpleChannel();
+    instance = ChannelBuilder
+        .named(new ResourceLocation(PolymorphApi.MOD_ID, "main"))
+        .networkProtocolVersion(PTC_VERSION)
+        .clientAcceptedVersions(Channel.VersionTest.exact(PTC_VERSION))
+        .serverAcceptedVersions(Channel.VersionTest.exact(PTC_VERSION))
+        .simpleChannel();
 
     // Server-to-Client
     registerS2C(SPacketRecipesList.class, SPacketRecipesList::encode, SPacketRecipesList::decode,
@@ -79,26 +81,33 @@ public class PolymorphForgeNetwork {
   public static <M> void registerC2S(Class<M> clazz, BiConsumer<M, FriendlyByteBuf> encoder,
                                      Function<FriendlyByteBuf, M> decoder,
                                      BiConsumer<M, ServerPlayer> handler) {
-    instance.registerMessage(id++, clazz, encoder, decoder, (message, contextSupplier) -> {
-      NetworkEvent.Context context = contextSupplier.get();
-      context.enqueueWork(() -> {
-        ServerPlayer sender = context.getSender();
+    instance.messageBuilder(clazz)
+        .encoder(encoder)
+        .decoder(decoder)
+        .consumerNetworkThread((m, context) -> {
+          context.enqueueWork(() -> {
+            ServerPlayer player = context.getSender();
 
-        if (sender != null) {
-          handler.accept(message, sender);
-        }
-      });
-      context.setPacketHandled(true);
-    });
+            if (player != null) {
+              handler.accept(m, player);
+            }
+          });
+          context.setPacketHandled(true);
+        })
+        .add();
   }
 
   public static <M> void registerS2C(Class<M> clazz, BiConsumer<M, FriendlyByteBuf> encoder,
                                      Function<FriendlyByteBuf, M> decoder, Consumer<M> handler) {
-    instance.registerMessage(id++, clazz, encoder, decoder, (message, contextSupplier) -> {
-      NetworkEvent.Context context = contextSupplier.get();
-      context.enqueueWork(
-          () -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> handler.accept(message)));
-      context.setPacketHandled(true);
-    });
+    instance.messageBuilder(clazz)
+        .encoder(encoder)
+        .decoder(decoder)
+        .consumerNetworkThread((BiConsumer<M, CustomPayloadEvent.Context>) (m, context) ->
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+                () -> () -> {
+                  context.enqueueWork(() -> handler.accept(m));
+                  context.setPacketHandled(true);
+                }))
+        .add();
   }
 }

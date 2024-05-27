@@ -26,6 +26,7 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -42,7 +43,7 @@ public class MixinCraftingMenu {
           value = "INVOKE",
           target = "net/minecraft/world/item/crafting/RecipeManager.getRecipeFor(Lnet/minecraft/world/item/crafting/RecipeType;Lnet/minecraft/world/Container;Lnet/minecraft/world/level/Level;)Ljava/util/Optional;"),
       method = "slotChangedCraftingGrid")
-  private static <C extends Container, T extends Recipe<C>> Optional<T> polymorph$getRecipe(
+  private static <C extends Container, T extends Recipe<C>> Optional<RecipeHolder<T>> polymorph$getRecipe(
       RecipeManager recipeManager, RecipeType<T> type, C inventory, Level world,
       AbstractContainerMenu p_150547_, Level p_150548_, Player player,
       CraftingContainer p_150550_, ResultContainer p_150551_) {

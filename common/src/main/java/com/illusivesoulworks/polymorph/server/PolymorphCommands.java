@@ -47,6 +47,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 
@@ -95,7 +96,7 @@ public class PolymorphCommands {
   private static <C extends Container, T extends Recipe<C>> int scanRecipes(RecipeType<T> pType,
                                                                             List<String> pOutput,
                                                                             RecipeManager pRecipeManager,
-                                                                            Function<Recipe<?>, RecipeWrapper> pFactory) {
+                                                                            Function<RecipeHolder<?>, RecipeWrapper> pFactory) {
     Collection<RecipeWrapper> recipes =
         pRecipeManager.getAllRecipesFor(pType).stream().map(pFactory).toList();
     List<Set<ResourceLocation>> conflicts = new ArrayList<>();
@@ -149,7 +150,7 @@ public class PolymorphCommands {
       count++;
     }
 
-    if (skipped.size() > 0) {
+    if (!skipped.isEmpty()) {
       pOutput.add("Skipped special recipes: ");
 
       for (ResourceLocation resourceLocation : skipped) {

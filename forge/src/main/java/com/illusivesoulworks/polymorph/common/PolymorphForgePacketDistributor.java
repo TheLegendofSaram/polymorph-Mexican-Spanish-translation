@@ -37,20 +37,21 @@ public class PolymorphForgePacketDistributor implements IPolymorphPacketDistribu
 
   @Override
   public void sendPlayerRecipeSelectionC2S(ResourceLocation resourceLocation) {
-    PolymorphForgeNetwork.get().send(PacketDistributor.SERVER.noArg(),
-        new CPacketPlayerRecipeSelection(resourceLocation));
+    PolymorphForgeNetwork.get()
+        .send(new CPacketPlayerRecipeSelection(resourceLocation), PacketDistributor.SERVER.noArg());
   }
 
   @Override
   public void sendPersistentRecipeSelectionC2S(ResourceLocation resourceLocation) {
-    PolymorphForgeNetwork.get().send(PacketDistributor.SERVER.noArg(),
-        new CPacketPersistentRecipeSelection(resourceLocation));
+    PolymorphForgeNetwork.get()
+        .send(new CPacketPersistentRecipeSelection(resourceLocation),
+            PacketDistributor.SERVER.noArg());
   }
 
   @Override
   public void sendStackRecipeSelectionC2S(ResourceLocation resourceLocation) {
-    PolymorphForgeNetwork.get().send(PacketDistributor.SERVER.noArg(),
-        new CPacketStackRecipeSelection(resourceLocation));
+    PolymorphForgeNetwork.get()
+        .send(new CPacketStackRecipeSelection(resourceLocation), PacketDistributor.SERVER.noArg());
   }
 
   @Override
@@ -66,32 +67,32 @@ public class PolymorphForgePacketDistributor implements IPolymorphPacketDistribu
   @Override
   public void sendRecipesListS2C(ServerPlayer player, SortedSet<IRecipePair> recipesList,
                                  ResourceLocation selected) {
-    PolymorphForgeNetwork.get().send(PacketDistributor.PLAYER.with(() -> player),
-        new SPacketRecipesList(recipesList, selected));
+    PolymorphForgeNetwork.get()
+        .send(new SPacketRecipesList(recipesList, selected), PacketDistributor.PLAYER.with(player));
   }
 
   @Override
   public void sendHighlightRecipeS2C(ServerPlayer player, ResourceLocation pResourceLocation) {
-    PolymorphForgeNetwork.get().send(PacketDistributor.PLAYER.with(() -> player),
-        new SPacketHighlightRecipe(pResourceLocation));
+    PolymorphForgeNetwork.get()
+        .send(new SPacketHighlightRecipe(pResourceLocation), PacketDistributor.PLAYER.with(player));
   }
 
   @Override
   public void sendPlayerSyncS2C(ServerPlayer player, SortedSet<IRecipePair> recipesList,
                                 ResourceLocation selected) {
-    PolymorphForgeNetwork.get().send(PacketDistributor.PLAYER.with(() -> player),
-        new SPacketPlayerRecipeSync(recipesList, selected));
+    PolymorphForgeNetwork.get().send(new SPacketPlayerRecipeSync(recipesList, selected),
+        PacketDistributor.PLAYER.with(player));
   }
 
   @Override
   public void sendBlockEntitySyncS2C(BlockPos blockPos, ResourceLocation selected) {
-    PolymorphForgeNetwork.get().send(PacketDistributor.ALL.noArg(),
-        new SPacketBlockEntityRecipeSync(blockPos, selected));
+    PolymorphForgeNetwork.get()
+        .send(new SPacketBlockEntityRecipeSync(blockPos, selected), PacketDistributor.ALL.noArg());
   }
 
   @Override
   public void sendBlockEntityListenerC2S(boolean add) {
     PolymorphForgeNetwork.get()
-        .send(PacketDistributor.SERVER.noArg(), new CPacketBlockEntityListener(add));
+        .send(new CPacketBlockEntityListener(add), PacketDistributor.SERVER.noArg());
   }
 }

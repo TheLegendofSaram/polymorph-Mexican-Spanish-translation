@@ -27,6 +27,7 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.ItemCombinerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.SmithingMenu;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmithingRecipe;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,10 +41,10 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public abstract class MixinSmithingMenu extends ItemCombinerMenu {
 
   @Unique
-  private List<SmithingRecipe> matchingRecipes;
+  private List<RecipeHolder<SmithingRecipe>> polymorph$matchingRecipes;
 
   @Shadow
-  private SmithingRecipe selectedRecipe;
+  private RecipeHolder<SmithingRecipe> selectedRecipe;
 
   public MixinSmithingMenu(@Nullable MenuType<?> p_i231587_1_, int p_i231587_2_,
                            Inventory p_i231587_3_, ContainerLevelAccess p_i231587_4_) {
@@ -55,8 +56,9 @@ public abstract class MixinSmithingMenu extends ItemCombinerMenu {
           value = "INVOKE_ASSIGN",
           target = "net/minecraft/world/item/crafting/RecipeManager.getRecipesFor(Lnet/minecraft/world/item/crafting/RecipeType;Lnet/minecraft/world/Container;Lnet/minecraft/world/level/Level;)Ljava/util/List;"),
       method = "createResult")
-  private List<SmithingRecipe> polymorph$getRecipes(List<SmithingRecipe> recipes) {
-    this.matchingRecipes = recipes;
+  private List<RecipeHolder<SmithingRecipe>> polymorph$getRecipes(
+      List<RecipeHolder<SmithingRecipe>> recipes) {
+    this.polymorph$matchingRecipes = recipes;
 
     if (this.player instanceof ServerPlayer && recipes.isEmpty()) {
       PolymorphApi.common().getPacketDistributor()
@@ -72,9 +74,10 @@ public abstract class MixinSmithingMenu extends ItemCombinerMenu {
           shift = At.Shift.BY,
           by = 3),
       method = "createResult")
-  private SmithingRecipe polymorph$updateRepairOutput(SmithingRecipe smithingRecipe) {
+  private RecipeHolder<SmithingRecipe> polymorph$updateRepairOutput(
+      RecipeHolder<SmithingRecipe> smithingRecipe) {
     return RecipeSelection.getPlayerRecipe((SmithingMenu) (Object) this, RecipeType.SMITHING,
-            this.inputSlots, this.player.level(), this.player, this.matchingRecipes)
+            this.inputSlots, this.player.level(), this.player, this.polymorph$matchingRecipes)
         .orElse(smithingRecipe);
   }
 }

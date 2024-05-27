@@ -23,6 +23,7 @@ import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -42,7 +43,7 @@ public class MixinRecipeManager {
       cancellable = true)
   private <C extends Container, T extends Recipe<C>> void polymorph$getRecipe(
       RecipeType<T> recipeType, C inventory, Level level, ResourceLocation resourceLocation,
-      CallbackInfoReturnable<Optional<Pair<ResourceLocation, T>>> cb) {
+      CallbackInfoReturnable<Optional<Pair<ResourceLocation, RecipeHolder<T>>>> cb) {
 
     if (inventory instanceof BlockEntity) {
       RecipeSelection.getBlockEntityRecipe(recipeType, inventory, level, (BlockEntity) inventory)
@@ -55,7 +56,8 @@ public class MixinRecipeManager {
       method = "getRecipeFor(Lnet/minecraft/world/item/crafting/RecipeType;Lnet/minecraft/world/Container;Lnet/minecraft/world/level/Level;)Ljava/util/Optional;",
       cancellable = true)
   private <C extends Container, T extends Recipe<C>> void polymorph$getRecipe(
-      RecipeType<T> recipeType, C inventory, Level level, CallbackInfoReturnable<Optional<T>> cb) {
+      RecipeType<T> recipeType, C inventory, Level level,
+      CallbackInfoReturnable<Optional<RecipeHolder<T>>> cb) {
 
     if (inventory instanceof BlockEntity) {
       RecipeSelection.getBlockEntityRecipe(recipeType, inventory, level, (BlockEntity) inventory)

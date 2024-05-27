@@ -4,12 +4,13 @@ import com.illusivesoulworks.polymorph.mixin.core.AccessorSmithingTransformRecip
 import com.illusivesoulworks.polymorph.mixin.core.AccessorSmithingTrimRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.SmithingTransformRecipe;
 import net.minecraft.world.item.crafting.SmithingTrimRecipe;
 
 public class SmithingRecipeWrapper extends RecipeWrapper {
 
-  public SmithingRecipeWrapper(Recipe<?> pRecipe) {
+  public SmithingRecipeWrapper(RecipeHolder<?> pRecipe) {
     super(pRecipe);
   }
 

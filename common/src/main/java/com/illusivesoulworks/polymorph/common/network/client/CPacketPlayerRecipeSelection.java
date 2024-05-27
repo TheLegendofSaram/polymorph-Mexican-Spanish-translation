@@ -18,7 +18,6 @@
 package com.illusivesoulworks.polymorph.common.network.client;
 
 import com.illusivesoulworks.polymorph.api.PolymorphApi;
-import com.illusivesoulworks.polymorph.common.integration.AbstractCompatibilityModule;
 import com.illusivesoulworks.polymorph.common.integration.PolymorphIntegrations;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;

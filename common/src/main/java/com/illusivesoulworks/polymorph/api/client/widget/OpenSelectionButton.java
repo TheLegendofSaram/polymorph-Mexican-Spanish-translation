@@ -33,7 +33,7 @@ public class OpenSelectionButton extends ImageButton {
 
   public OpenSelectionButton(AbstractContainerScreen<?> containerScreen, int x, int y,
                              OnPress onPress) {
-    super(0, 0, 16, 16, 0, 0, 17, AbstractRecipesWidget.WIDGETS, 256, 256, onPress);
+    super(0, 0, 16, 16, AbstractRecipesWidget.SELECTOR, onPress);
     this.containerScreen = containerScreen;
     this.xOffset = x;
     this.yOffset = y;

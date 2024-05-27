@@ -32,18 +32,19 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class RecipeSelection {
 
-  private static <T extends Recipe<C>, C extends Container> Optional<T> getDefaultRecipe(
+  private static <T extends Recipe<C>, C extends Container> Optional<RecipeHolder<T>> getDefaultRecipe(
       RecipeType<T> type, C inventory, Level level) {
     return level.getRecipeManager().getRecipeFor(type, inventory, level);
   }
 
-  public static <T extends Recipe<C>, C extends Container> Optional<T> getPlayerRecipe(
+  public static <T extends Recipe<C>, C extends Container> Optional<RecipeHolder<T>> getPlayerRecipe(
       AbstractContainerMenu containerMenu, RecipeType<T> type, C inventory, Level level,
       List<Slot> slots) {
     Player player = null;
@@ -64,40 +65,39 @@ public class RecipeSelection {
     }
   }
 
-  public static <T extends Recipe<C>, C extends Container> Optional<T> getPlayerRecipe(
+  public static <T extends Recipe<C>, C extends Container> Optional<RecipeHolder<T>> getPlayerRecipe(
       AbstractContainerMenu containerMenu, RecipeType<T> type, C inventory, Level level,
       Player player) {
     return getPlayerRecipe(containerMenu, type, inventory, level, player, new ArrayList<>());
   }
 
-  public static <T extends Recipe<C>, C extends Container> Optional<T> getPlayerRecipe(
+  public static <T extends Recipe<C>, C extends Container> Optional<RecipeHolder<T>> getPlayerRecipe(
       AbstractContainerMenu containerMenu, RecipeType<T> type, C inventory, Level level,
-      Player player, List<T> recipes) {
+      Player player, List<RecipeHolder<T>> recipes) {
     Optional<? extends IPlayerRecipeData> maybeData = PolymorphApi.common().getRecipeData(player);
     maybeData.ifPresent(playerRecipeData -> playerRecipeData.setContainerMenu(containerMenu));
     return getRecipe(type, inventory, level, maybeData, recipes);
   }
 
-  public static <T extends Recipe<C>, C extends Container> Optional<T> getStackRecipe(
+  public static <T extends Recipe<C>, C extends Container> Optional<RecipeHolder<T>> getStackRecipe(
       RecipeType<T> type, C inventory, Level level, ItemStack stack) {
     Optional<? extends IStackRecipeData> maybeData = PolymorphApi.common().getRecipeData(stack);
     return getRecipe(type, inventory, level, maybeData, new ArrayList<>());
   }
 
-  public static <T extends Recipe<C>, C extends Container> Optional<T> getBlockEntityRecipe(
+  public static <T extends Recipe<C>, C extends Container> Optional<RecipeHolder<T>> getBlockEntityRecipe(
       RecipeType<T> type, C inventory, Level level, BlockEntity blockEntity) {
     Optional<? extends IBlockEntityRecipeData> maybeData =
         PolymorphApi.common().getRecipeData(blockEntity);
     return getRecipe(type, inventory, level, maybeData, new ArrayList<>());
   }
 
-  private static <T extends Recipe<C>, C extends Container> Optional<T> getRecipe(
+  private static <T extends Recipe<C>, C extends Container> Optional<RecipeHolder<T>> getRecipe(
       RecipeType<T> type, C inventory, Level level, Optional<? extends IRecipeData<?>> pOpt,
-      List<T> recipes) {
+      List<RecipeHolder<T>> recipes) {
 
     if (pOpt.isPresent()) {
-      return pOpt.map(recipeData -> recipeData.getRecipe(type, inventory, level, recipes))
-          .orElse(Optional.empty());
+      return pOpt.flatMap(recipeData -> recipeData.getRecipe(type, inventory, level, recipes));
     } else {
       return level.getRecipeManager().getRecipesFor(type, inventory, level).stream()
           .findFirst();

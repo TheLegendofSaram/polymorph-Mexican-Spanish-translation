@@ -21,18 +21,25 @@ import com.illusivesoulworks.polymorph.api.PolymorphApi;
 import com.illusivesoulworks.polymorph.api.client.base.IRecipesWidget;
 import com.illusivesoulworks.polymorph.api.common.base.IRecipePair;
 import com.illusivesoulworks.polymorph.platform.Services;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class AbstractRecipesWidget implements IRecipesWidget {
 
-  public static final ResourceLocation WIDGETS =
-      new ResourceLocation(PolymorphApi.MOD_ID, "textures/gui/widgets.png");
+  public static final WidgetSprites OUTPUT =
+      new WidgetSprites(new ResourceLocation(PolymorphApi.MOD_ID, "output_button"),
+          new ResourceLocation(PolymorphApi.MOD_ID, "output_button_highlighted"));
+  public static final WidgetSprites CURRENT_OUTPUT =
+      new WidgetSprites(new ResourceLocation(PolymorphApi.MOD_ID, "current_output"),
+          new ResourceLocation(PolymorphApi.MOD_ID, "current_output_highlighted"));
+  public static final WidgetSprites SELECTOR =
+      new WidgetSprites(new ResourceLocation(PolymorphApi.MOD_ID, "selector_button"),
+          new ResourceLocation(PolymorphApi.MOD_ID, "selector_button_highlighted"));
   public static final int BUTTON_X_OFFSET = 0;
   public static final int BUTTON_Y_OFFSET = -22;
   public static final int WIDGET_X_OFFSET = -4;

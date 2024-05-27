@@ -30,13 +30,13 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.annotation.Nonnull;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
@@ -44,7 +44,7 @@ public class PlayerRecipeData extends AbstractRecipeData<Player> implements
     IPlayerRecipeData {
 
   private AbstractContainerMenu containerMenu;
-  private Recipe<?> cachedSelection;
+  private RecipeHolder<?> cachedSelection;
   private int lastAccessTick;
 
   public PlayerRecipeData(Player owner) {
@@ -52,10 +52,10 @@ public class PlayerRecipeData extends AbstractRecipeData<Player> implements
   }
 
   @Override
-  public <T extends Recipe<C>, C extends Container> Optional<T> getRecipe(RecipeType<T> type,
-                                                                          C inventory,
-                                                                          Level level,
-                                                                          List<T> recipesList) {
+  public <T extends Recipe<C>, C extends Container> Optional<RecipeHolder<T>> getRecipe(
+      RecipeType<T> type,
+      C inventory, Level level,
+      List<RecipeHolder<T>> recipesList) {
 
     // Workaround for crafting remainders where the recipe output is called once without it and then
     // once with it, resulting in a cache needed for repeated access during the same tick to get the
@@ -68,7 +68,7 @@ public class PlayerRecipeData extends AbstractRecipeData<Player> implements
     } else {
       this.cachedSelection = null;
     }
-    Optional<T> maybeRecipe = super.getRecipe(type, inventory, level, recipesList);
+    Optional<RecipeHolder<T>> maybeRecipe = super.getRecipe(type, inventory, level, recipesList);
 
     if (this.getContainerMenu() == this.getOwner().containerMenu) {
       this.syncPlayerRecipeData();
@@ -83,7 +83,7 @@ public class PlayerRecipeData extends AbstractRecipeData<Player> implements
   }
 
   @Override
-  public void selectRecipe(@Nonnull Recipe<?> recipe) {
+  public void selectRecipe(@Nonnull RecipeHolder<?> recipe) {
     super.selectRecipe(recipe);
     this.syncPlayerRecipeData();
   }
@@ -93,7 +93,7 @@ public class PlayerRecipeData extends AbstractRecipeData<Player> implements
     if (this.getOwner() instanceof ServerPlayer) {
       PolymorphApi.common().getPacketDistributor()
           .sendPlayerSyncS2C((ServerPlayer) this.getOwner(), this.getRecipesList(),
-              this.getSelectedRecipe().map(Recipe::getId).orElse(null));
+              this.getSelectedRecipe().map(RecipeHolder::id).orElse(null));
     }
   }
 

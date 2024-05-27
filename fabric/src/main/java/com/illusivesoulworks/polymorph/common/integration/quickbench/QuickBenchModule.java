@@ -8,14 +8,14 @@ import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 public class QuickBenchModule extends AbstractCompatibilityModule {
 
   @Override
-  public boolean selectRecipe(AbstractContainerMenu containerMenu, Recipe<?> recipe) {
+  public boolean selectRecipe(AbstractContainerMenu containerMenu, RecipeHolder<?> recipe) {
 
-    if (recipe instanceof CraftingRecipe) {
+    if (recipe.value() instanceof CraftingRecipe) {
       ResultContainer result = null;
 
       if (containerMenu instanceof CraftingMenu) {

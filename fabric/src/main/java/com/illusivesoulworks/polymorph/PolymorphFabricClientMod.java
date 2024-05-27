@@ -20,6 +20,7 @@ package com.illusivesoulworks.polymorph;
 import com.illusivesoulworks.polymorph.client.ClientEventsListener;
 import com.illusivesoulworks.polymorph.common.PolymorphFabricNetwork;
 import net.fabricmc.api.ClientModInitializer;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class PolymorphFabricClientMod implements ClientModInitializer {
 
