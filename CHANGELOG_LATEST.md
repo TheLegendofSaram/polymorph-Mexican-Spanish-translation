@@ -2,8 +2,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 This is a copy of the changelog for the most recent version. For the full version history, go [here](https://github.com/illusivesoulworks/polymorph/blob/1.20.x/CHANGELOG.md).
 
-## [0.49.4+1.20.1] - 2024.05.24
+## [0.50.0+1.20.2] - 2024.05.27
 ### Changed
-- Updated `ru_ru` localization
-### Fixed
-- [Fabric/Quilt] Fixed compatibility with QuickBench [#260](https://github.com/illusivesoulworks/polymorph/issues/260)
+- Updated to Minecraft 1.20.2
+### Removed
+- Removed SpectreLib and configuration files
