@@ -2,8 +2,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 This is a copy of the changelog for the most recent version. For the full version history, go [here](https://github.com/illusivesoulworks/polymorph/blob/1.20.x/CHANGELOG.md).
 
-## [0.50.0+1.20.2] - 2024.05.27
+## [0.51.0+1.20.4] - 2024.05.28
 ### Changed
-- Updated to Minecraft 1.20.2
-### Removed
-- Removed SpectreLib and configuration files
+- Updated to Minecraft 1.20.4
