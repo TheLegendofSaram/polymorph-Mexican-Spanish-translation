@@ -58,24 +58,24 @@ public class PolymorphForgeNetwork {
         .simpleChannel();
 
     // Server-to-Client
-    registerS2C(SPacketRecipesList.class, SPacketRecipesList::encode, SPacketRecipesList::decode,
+    registerS2C(SPacketRecipesList.class, SPacketRecipesList::write, SPacketRecipesList::new,
         SPacketRecipesList::handle);
-    registerS2C(SPacketHighlightRecipe.class, SPacketHighlightRecipe::encode,
-        SPacketHighlightRecipe::decode, SPacketHighlightRecipe::handle);
-    registerS2C(SPacketPlayerRecipeSync.class, SPacketPlayerRecipeSync::encode,
-        SPacketPlayerRecipeSync::decode, SPacketPlayerRecipeSync::handle);
-    registerS2C(SPacketBlockEntityRecipeSync.class, SPacketBlockEntityRecipeSync::encode,
-        SPacketBlockEntityRecipeSync::decode, SPacketBlockEntityRecipeSync::handle);
+    registerS2C(SPacketHighlightRecipe.class, SPacketHighlightRecipe::write,
+        SPacketHighlightRecipe::new, SPacketHighlightRecipe::handle);
+    registerS2C(SPacketPlayerRecipeSync.class, SPacketPlayerRecipeSync::write,
+        SPacketPlayerRecipeSync::new, SPacketPlayerRecipeSync::handle);
+    registerS2C(SPacketBlockEntityRecipeSync.class, SPacketBlockEntityRecipeSync::write,
+        SPacketBlockEntityRecipeSync::new, SPacketBlockEntityRecipeSync::handle);
 
     // Client-to-Server
-    registerC2S(CPacketPlayerRecipeSelection.class, CPacketPlayerRecipeSelection::encode,
-        CPacketPlayerRecipeSelection::decode, CPacketPlayerRecipeSelection::handle);
-    registerC2S(CPacketPersistentRecipeSelection.class, CPacketPersistentRecipeSelection::encode,
-        CPacketPersistentRecipeSelection::decode, CPacketPersistentRecipeSelection::handle);
-    registerC2S(CPacketStackRecipeSelection.class, CPacketStackRecipeSelection::encode,
-        CPacketStackRecipeSelection::decode, CPacketStackRecipeSelection::handle);
-    registerC2S(CPacketBlockEntityListener.class, CPacketBlockEntityListener::encode,
-        CPacketBlockEntityListener::decode, CPacketBlockEntityListener::handle);
+    registerC2S(CPacketPlayerRecipeSelection.class, CPacketPlayerRecipeSelection::write,
+        CPacketPlayerRecipeSelection::new, CPacketPlayerRecipeSelection::handle);
+    registerC2S(CPacketPersistentRecipeSelection.class, CPacketPersistentRecipeSelection::write,
+        CPacketPersistentRecipeSelection::new, CPacketPersistentRecipeSelection::handle);
+    registerC2S(CPacketStackRecipeSelection.class, CPacketStackRecipeSelection::write,
+        CPacketStackRecipeSelection::new, CPacketStackRecipeSelection::handle);
+    registerC2S(CPacketBlockEntityListener.class, CPacketBlockEntityListener::write,
+        CPacketBlockEntityListener::new, CPacketBlockEntityListener::handle);
   }
 
   public static <M> void registerC2S(Class<M> clazz, BiConsumer<M, FriendlyByteBuf> encoder,

@@ -34,8 +34,8 @@ public class ClientPacketHandler {
 
     if (clientPlayerEntity != null) {
       PolymorphApi.common().getRecipeData(clientPlayerEntity).ifPresent(recipeData -> {
-        recipeData.setRecipesList(packet.getRecipeList());
-        clientPlayerEntity.level().getRecipeManager().byKey(packet.getSelected()).ifPresent(
+        recipeData.setRecipesList(packet.recipeList);
+        clientPlayerEntity.level().getRecipeManager().byKey(packet.selected).ifPresent(
             recipeData::setSelectedRecipe);
       });
     }
@@ -45,11 +45,11 @@ public class ClientPacketHandler {
     ClientLevel level = Minecraft.getInstance().level;
 
     if (level != null) {
-      BlockEntity blockEntity = level.getBlockEntity(packet.getBlockPos());
+      BlockEntity blockEntity = level.getBlockEntity(packet.blockPos());
 
       if (blockEntity != null) {
         PolymorphCapabilities.getRecipeData(blockEntity)
-            .ifPresent(recipeData -> level.getRecipeManager().byKey(packet.getSelected())
+            .ifPresent(recipeData -> level.getRecipeManager().byKey(packet.selected())
                 .ifPresent(recipeData::setSelectedRecipe));
       }
     }
@@ -61,10 +61,10 @@ public class ClientPacketHandler {
     if (clientPlayerEntity != null) {
       Optional<IRecipesWidget> maybeWidget = RecipesWidget.get();
       maybeWidget.ifPresent(
-          widget -> widget.setRecipesList(packet.getRecipeList(), packet.getSelected()));
+          widget -> widget.setRecipesList(packet.recipeList, packet.selected));
 
       if (maybeWidget.isEmpty()) {
-        RecipesWidget.enqueueRecipesList(packet.getRecipeList(), packet.getSelected());
+        RecipesWidget.enqueueRecipesList(packet.recipeList, packet.selected);
       }
     }
   }
@@ -73,7 +73,7 @@ public class ClientPacketHandler {
     LocalPlayer clientPlayerEntity = Minecraft.getInstance().player;
 
     if (clientPlayerEntity != null) {
-      RecipesWidget.get().ifPresent(widget -> widget.highlightRecipe(packet.getRecipe()));
+      RecipesWidget.get().ifPresent(widget -> widget.highlightRecipe(packet.recipe()));
     }
   }
 }

@@ -17,7 +17,6 @@
 
 package com.illusivesoulworks.polymorph.common;
 
-import com.illusivesoulworks.polymorph.api.PolymorphApi;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketBlockEntityListener;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketPersistentRecipeSelection;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketPlayerRecipeSelection;
@@ -37,41 +36,25 @@ import net.minecraft.server.level.ServerPlayer;
 
 public class PolymorphFabricNetwork {
 
-  public static final ResourceLocation PLAYER_SELECT =
-      new ResourceLocation(PolymorphApi.MOD_ID, "player_select");
-  public static final ResourceLocation PERSISTENT_SELECT =
-      new ResourceLocation(PolymorphApi.MOD_ID, "persistent_select");
-  public static final ResourceLocation STACK_SELECT =
-      new ResourceLocation(PolymorphApi.MOD_ID, "stack_select");
-  public static final ResourceLocation RECIPES_LIST =
-      new ResourceLocation(PolymorphApi.MOD_ID, "recipes_list");
-  public static final ResourceLocation HIGHLIGHT_RECIPE =
-      new ResourceLocation(PolymorphApi.MOD_ID, "highlight_recipe");
-  public static final ResourceLocation RECIPE_SYNC =
-      new ResourceLocation(PolymorphApi.MOD_ID, "recipe_sync");
-  public static final ResourceLocation BLOCK_ENTITY_SYNC =
-      new ResourceLocation(PolymorphApi.MOD_ID, "block_entity_sync");
-  public static final ResourceLocation BLOCK_ENTITY_LISTENER =
-      new ResourceLocation(PolymorphApi.MOD_ID, "block_entity_listener");
-
   public static void setup() {
-    registerServerReceiver(PLAYER_SELECT, CPacketPlayerRecipeSelection::decode,
+    registerServerReceiver(CPacketPlayerRecipeSelection.ID, CPacketPlayerRecipeSelection::new,
         CPacketPlayerRecipeSelection::handle);
-    registerServerReceiver(PERSISTENT_SELECT, CPacketPersistentRecipeSelection::decode,
-        CPacketPersistentRecipeSelection::handle);
-    registerServerReceiver(STACK_SELECT, CPacketStackRecipeSelection::decode,
+    registerServerReceiver(CPacketPersistentRecipeSelection.ID,
+        CPacketPersistentRecipeSelection::new, CPacketPersistentRecipeSelection::handle);
+    registerServerReceiver(CPacketStackRecipeSelection.ID, CPacketStackRecipeSelection::new,
         CPacketStackRecipeSelection::handle);
-    registerServerReceiver(BLOCK_ENTITY_LISTENER, CPacketBlockEntityListener::decode,
+    registerServerReceiver(CPacketBlockEntityListener.ID, CPacketBlockEntityListener::new,
         CPacketBlockEntityListener::handle);
   }
 
   public static void clientSetup() {
-    registerClientReceiver(HIGHLIGHT_RECIPE, SPacketHighlightRecipe::decode,
+    registerClientReceiver(SPacketHighlightRecipe.ID, SPacketHighlightRecipe::new,
         SPacketHighlightRecipe::handle);
-    registerClientReceiver(RECIPE_SYNC, SPacketPlayerRecipeSync::decode,
+    registerClientReceiver(SPacketPlayerRecipeSync.ID, SPacketPlayerRecipeSync::new,
         SPacketPlayerRecipeSync::handle);
-    registerClientReceiver(RECIPES_LIST, SPacketRecipesList::decode, SPacketRecipesList::handle);
-    registerClientReceiver(BLOCK_ENTITY_SYNC, SPacketBlockEntityRecipeSync::decode,
+    registerClientReceiver(SPacketRecipesList.ID, SPacketRecipesList::new,
+        SPacketRecipesList::handle);
+    registerClientReceiver(SPacketBlockEntityRecipeSync.ID, SPacketBlockEntityRecipeSync::new,
         SPacketBlockEntityRecipeSync::handle);
   }
 

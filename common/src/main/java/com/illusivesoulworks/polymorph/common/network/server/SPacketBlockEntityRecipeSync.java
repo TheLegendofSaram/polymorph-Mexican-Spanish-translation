@@ -17,31 +17,36 @@
 
 package com.illusivesoulworks.polymorph.common.network.server;
 
+import com.illusivesoulworks.polymorph.api.PolymorphApi;
+import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
-public record SPacketBlockEntityRecipeSync(BlockPos blockPos,
-                                           ResourceLocation selected) {
+public record SPacketBlockEntityRecipeSync(BlockPos blockPos, ResourceLocation selected)
+    implements CustomPacketPayload {
 
-  public BlockPos getBlockPos() {
-    return this.blockPos;
-  }
+  public static final ResourceLocation ID =
+      new ResourceLocation(PolymorphApi.MOD_ID, "block_entity_recipe_sync");
 
-  public ResourceLocation getSelected() {
-    return this.selected;
-  }
-
-  public static void encode(SPacketBlockEntityRecipeSync packet, FriendlyByteBuf buffer) {
-    buffer.writeBlockPos(packet.getBlockPos());
-    buffer.writeResourceLocation(packet.getSelected());
-  }
-
-  public static SPacketBlockEntityRecipeSync decode(FriendlyByteBuf buffer) {
-    return new SPacketBlockEntityRecipeSync(buffer.readBlockPos(), buffer.readResourceLocation());
+  public SPacketBlockEntityRecipeSync(FriendlyByteBuf buf) {
+    this(buf.readBlockPos(), buf.readResourceLocation());
   }
 
   public static void handle(SPacketBlockEntityRecipeSync packet) {
     ClientPacketHandler.handle(packet);
+  }
+
+  @Override
+  public void write(@Nonnull FriendlyByteBuf buf) {
+    buf.writeBlockPos(blockPos());
+    buf.writeResourceLocation(selected());
+  }
+
+  @Nonnull
+  @Override
+  public ResourceLocation id() {
+    return ID;
   }
 }

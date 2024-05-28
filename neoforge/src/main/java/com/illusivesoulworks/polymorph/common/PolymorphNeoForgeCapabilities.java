@@ -18,30 +18,70 @@
 package com.illusivesoulworks.polymorph.common;
 
 import com.illusivesoulworks.polymorph.api.PolymorphApi;
-import com.illusivesoulworks.polymorph.api.common.capability.IBlockEntityRecipeData;
-import com.illusivesoulworks.polymorph.api.common.capability.IPlayerRecipeData;
-import com.illusivesoulworks.polymorph.api.common.capability.IStackRecipeData;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.common.capabilities.Capability;
-import net.neoforged.neoforge.common.capabilities.CapabilityManager;
-import net.neoforged.neoforge.common.capabilities.CapabilityToken;
+import com.illusivesoulworks.polymorph.api.common.capability.IRecipeData;
+import com.illusivesoulworks.polymorph.common.capability.PlayerRecipeData;
+import java.util.function.Supplier;
+import javax.annotation.Nonnull;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.attachment.IAttachmentHolder;
+import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class PolymorphNeoForgeCapabilities {
 
-  public static final Capability<IPlayerRecipeData> PLAYER_RECIPE_DATA =
-      CapabilityManager.get(new CapabilityToken<>() {
-      });
-  public static final Capability<IBlockEntityRecipeData> BLOCK_ENTITY_RECIPE_DATA =
-      CapabilityManager.get(new CapabilityToken<>() {
-      });
-  public static final Capability<IStackRecipeData> STACK_RECIPE_DATA =
-      CapabilityManager.get(new CapabilityToken<>() {
-      });
+  private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES =
+      DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, PolymorphApi.MOD_ID);
 
-  public static final ResourceLocation PLAYER_RECIPE_DATA_ID =
-      new ResourceLocation(PolymorphApi.MOD_ID, "player_recipe_data");
-  public static final ResourceLocation BLOCK_ENTITY_RECIPE_DATA_ID =
-      new ResourceLocation(PolymorphApi.MOD_ID, "block_entity_recipe_data");
-  public static final ResourceLocation STACK_RECIPE_DATA_ID =
-      new ResourceLocation(PolymorphApi.MOD_ID, "stack_recipe_data");
+  public static final Supplier<AttachmentType<RecipeDataAttachment>> RECIPE_DATA =
+      ATTACHMENT_TYPES.register(
+          "recipe_data", () -> AttachmentType.serializable(RecipeDataAttachment::new).build()
+      );
+
+  public static void setup(IEventBus eventBus) {
+    ATTACHMENT_TYPES.register(eventBus);
+  }
+
+  public static class RecipeDataAttachment implements INBTSerializable<CompoundTag> {
+
+    private IRecipeData<?> recipeData;
+
+    public RecipeDataAttachment(IAttachmentHolder attachmentHolder) {
+
+      if (attachmentHolder instanceof Player player) {
+        this.recipeData = new PlayerRecipeData(player);
+      } else if (attachmentHolder instanceof BlockEntity blockEntity) {
+        PolymorphApi.common().tryCreateRecipeData(blockEntity)
+            .ifPresent(rd -> this.recipeData = rd);
+      } else if (attachmentHolder instanceof ItemStack stack) {
+        PolymorphApi.common().tryCreateRecipeData(stack).ifPresent(rd -> this.recipeData = rd);
+      }
+    }
+
+    public IRecipeData<?> getRecipeData() {
+      return this.recipeData;
+    }
+
+    @Override
+    public CompoundTag serializeNBT() {
+
+      if (this.recipeData != null) {
+        return this.recipeData.writeNBT();
+      }
+      return null;
+    }
+
+    @Override
+    public void deserializeNBT(@Nonnull CompoundTag nbt) {
+
+      if (this.recipeData != null) {
+        this.recipeData.readNBT(nbt);
+      }
+    }
+  }
 }

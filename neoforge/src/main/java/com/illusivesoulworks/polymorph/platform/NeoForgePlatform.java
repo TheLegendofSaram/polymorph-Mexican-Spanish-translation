@@ -22,7 +22,7 @@ import com.illusivesoulworks.polymorph.api.common.capability.IBlockEntityRecipeD
 import com.illusivesoulworks.polymorph.api.common.capability.IPlayerRecipeData;
 import com.illusivesoulworks.polymorph.api.common.capability.IStackRecipeData;
 import com.illusivesoulworks.polymorph.common.PolymorphNeoForgeCapabilities;
-import com.illusivesoulworks.polymorph.common.PolymorphNeoForgePacketDistributor;
+import com.illusivesoulworks.polymorph.common.network.PolymorphNeoForgePacketDistributor;
 import com.illusivesoulworks.polymorph.platform.services.IPlatform;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -79,18 +79,22 @@ public class NeoForgePlatform implements IPlatform {
 
   @Override
   public Optional<? extends IPlayerRecipeData> getRecipeData(Player player) {
-    return player.getCapability(PolymorphNeoForgeCapabilities.PLAYER_RECIPE_DATA).resolve();
+    return Optional.ofNullable(
+        (IPlayerRecipeData) player.getData(PolymorphNeoForgeCapabilities.RECIPE_DATA.get())
+            .getRecipeData());
   }
 
   @Override
   public Optional<? extends IBlockEntityRecipeData> getRecipeData(BlockEntity blockEntity) {
-    return blockEntity.getCapability(PolymorphNeoForgeCapabilities.BLOCK_ENTITY_RECIPE_DATA)
-        .resolve();
+    return Optional.ofNullable((IBlockEntityRecipeData) blockEntity.getData(
+        PolymorphNeoForgeCapabilities.RECIPE_DATA.get()).getRecipeData());
   }
 
   @Override
   public Optional<? extends IStackRecipeData> getRecipeData(ItemStack stack) {
-    return stack.getCapability(PolymorphNeoForgeCapabilities.STACK_RECIPE_DATA).resolve();
+    return Optional.ofNullable(
+        (IStackRecipeData) stack.getData(PolymorphNeoForgeCapabilities.RECIPE_DATA.get())
+            .getRecipeData());
   }
 
   @Override

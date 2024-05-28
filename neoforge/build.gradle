@@ -40,9 +40,19 @@ runs {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+repositories {
+    maven {
+        name = "Shadows' Mods Maven"
+        url = "https://maven.shadowsoffire.dev/releases"
+    }
+}
+
 dependencies {
     implementation "net.neoforged:neoforge:${neoforge_version}"
     compileOnly project(":common")
+
+    compileOnly "dev.shadowsoffire:FastWorkbench:${fastworkbench_version}"
+    compileOnly "dev.shadowsoffire:Placebo:${placebo_version}"
 }
 
 // NeoGradle compiles the game, but we don't want to add our common code to the game's code

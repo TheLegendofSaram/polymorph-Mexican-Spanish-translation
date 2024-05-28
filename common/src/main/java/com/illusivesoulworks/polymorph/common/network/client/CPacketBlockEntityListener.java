@@ -19,18 +19,20 @@ package com.illusivesoulworks.polymorph.common.network.client;
 
 import com.illusivesoulworks.polymorph.api.PolymorphApi;
 import com.illusivesoulworks.polymorph.common.util.BlockEntityTicker;
+import javax.annotation.Nonnull;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
-public record CPacketBlockEntityListener(boolean add) {
+public record CPacketBlockEntityListener(boolean add) implements CustomPacketPayload {
 
-  public static void encode(CPacketBlockEntityListener packet, FriendlyByteBuf buffer) {
-    buffer.writeBoolean(packet.add);
-  }
+  public static final ResourceLocation ID =
+      new ResourceLocation(PolymorphApi.MOD_ID, "block_entity_listener");
 
-  public static CPacketBlockEntityListener decode(FriendlyByteBuf buffer) {
-    return new CPacketBlockEntityListener(buffer.readBoolean());
+  public CPacketBlockEntityListener(FriendlyByteBuf buf) {
+    this(buf.readBoolean());
   }
 
   public static void handle(CPacketBlockEntityListener packet, ServerPlayer player) {
@@ -45,5 +47,16 @@ public record CPacketBlockEntityListener(boolean add) {
         BlockEntityTicker.remove(player);
       }
     }
+  }
+
+  @Override
+  public void write(@Nonnull FriendlyByteBuf buf) {
+    buf.writeBoolean(add());
+  }
+
+  @Nonnull
+  @Override
+  public ResourceLocation id() {
+    return ID;
   }
 }

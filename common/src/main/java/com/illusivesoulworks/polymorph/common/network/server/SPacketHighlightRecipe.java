@@ -17,24 +17,33 @@
 
 package com.illusivesoulworks.polymorph.common.network.server;
 
+import com.illusivesoulworks.polymorph.api.PolymorphApi;
+import javax.annotation.Nonnull;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
-public record SPacketHighlightRecipe(ResourceLocation recipe) {
+public record SPacketHighlightRecipe(ResourceLocation recipe) implements CustomPacketPayload {
 
-  public ResourceLocation getRecipe() {
-    return this.recipe;
-  }
+  public static final ResourceLocation ID =
+      new ResourceLocation(PolymorphApi.MOD_ID, "highlight_recipe");
 
-  public static void encode(SPacketHighlightRecipe packet, FriendlyByteBuf buffer) {
-    buffer.writeResourceLocation(packet.recipe);
-  }
-
-  public static SPacketHighlightRecipe decode(FriendlyByteBuf buffer) {
-    return new SPacketHighlightRecipe(buffer.readResourceLocation());
+  public SPacketHighlightRecipe(FriendlyByteBuf buf) {
+    this(buf.readResourceLocation());
   }
 
   public static void handle(SPacketHighlightRecipe packet) {
     ClientPacketHandler.handle(packet);
+  }
+
+  @Override
+  public void write(@Nonnull FriendlyByteBuf buf) {
+    buf.writeResourceLocation(recipe());
+  }
+
+  @Nonnull
+  @Override
+  public ResourceLocation id() {
+    return ID;
   }
 }

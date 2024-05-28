@@ -17,13 +17,13 @@ logoFile="${mod_id}_icon.png"
     config = "${mod_id}.mixins.json"
 [[dependencies.polymorph]]
     modId="neoforge"
-    mandatory=true
+    type="required"
     versionRange="${neoforge_version_range}"
     ordering="NONE"
     side="BOTH"
 [[dependencies.polymorph]]
     modId="minecraft"
-    mandatory=true
+    type="required"
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"

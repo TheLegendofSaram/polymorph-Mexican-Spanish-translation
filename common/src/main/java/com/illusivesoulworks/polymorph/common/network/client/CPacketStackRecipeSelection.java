@@ -20,21 +20,22 @@ package com.illusivesoulworks.polymorph.common.network.client;
 import com.illusivesoulworks.polymorph.api.PolymorphApi;
 import com.illusivesoulworks.polymorph.common.integration.PolymorphIntegrations;
 import java.util.Optional;
+import javax.annotation.Nonnull;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 
-public record CPacketStackRecipeSelection(ResourceLocation recipe) {
+public record CPacketStackRecipeSelection(ResourceLocation recipe) implements CustomPacketPayload {
 
-  public static void encode(CPacketStackRecipeSelection packet, FriendlyByteBuf buffer) {
-    buffer.writeResourceLocation(packet.recipe);
-  }
+  public static final ResourceLocation ID =
+      new ResourceLocation(PolymorphApi.MOD_ID, "stack_recipe_selection");
 
-  public static CPacketStackRecipeSelection decode(FriendlyByteBuf buffer) {
-    return new CPacketStackRecipeSelection(buffer.readResourceLocation());
+  public CPacketStackRecipeSelection(FriendlyByteBuf buf) {
+    this(buf.readResourceLocation());
   }
 
   public static void handle(CPacketStackRecipeSelection packet, ServerPlayer player) {
@@ -49,5 +50,16 @@ public record CPacketStackRecipeSelection(ResourceLocation recipe) {
             PolymorphIntegrations.selectRecipe(container, recipe);
           });
     });
+  }
+
+  @Override
+  public void write(@Nonnull FriendlyByteBuf buf) {
+    buf.writeResourceLocation(recipe());
+  }
+
+  @Nonnull
+  @Override
+  public ResourceLocation id() {
+    return ID;
   }
 }
