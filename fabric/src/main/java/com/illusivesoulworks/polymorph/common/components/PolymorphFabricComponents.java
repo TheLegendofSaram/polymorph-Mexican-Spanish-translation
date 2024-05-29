@@ -18,27 +18,23 @@
 package com.illusivesoulworks.polymorph.common.components;
 
 import com.illusivesoulworks.polymorph.api.PolymorphApi;
-import dev.onyxstudios.cca.api.v3.block.BlockComponentFactoryRegistry;
-import dev.onyxstudios.cca.api.v3.block.BlockComponentInitializer;
-import dev.onyxstudios.cca.api.v3.component.ComponentKey;
-import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
-import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
-import dev.onyxstudios.cca.api.v3.entity.EntityComponentInitializer;
-import dev.onyxstudios.cca.api.v3.item.ItemComponentFactoryRegistry;
-import dev.onyxstudios.cca.api.v3.item.ItemComponentInitializer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.ladysnake.cca.api.v3.block.BlockComponentFactoryRegistry;
+import org.ladysnake.cca.api.v3.block.BlockComponentInitializer;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.ComponentRegistry;
+import org.ladysnake.cca.api.v3.entity.EntityComponentFactoryRegistry;
+import org.ladysnake.cca.api.v3.entity.EntityComponentInitializer;
 
 public class PolymorphFabricComponents implements BlockComponentInitializer,
-    EntityComponentInitializer, ItemComponentInitializer {
+    EntityComponentInitializer {
 
   public static final ComponentKey<PlayerRecipeDataComponent> PLAYER_RECIPE_DATA =
       ComponentRegistry.getOrCreate(new ResourceLocation(PolymorphApi.MOD_ID, "player_recipe_data"),
@@ -48,13 +44,7 @@ public class PolymorphFabricComponents implements BlockComponentInitializer,
       ComponentRegistry.getOrCreate(
           new ResourceLocation(PolymorphApi.MOD_ID, "block_entity_recipe_data"),
           AbstractBlockEntityRecipeDataComponent.class);
-  public static final ComponentKey<AbstractStackRecipeDataComponent> STACK_RECIPE_DATA =
-      ComponentRegistry.getOrCreate(new ResourceLocation(PolymorphApi.MOD_ID, "stack_recipe_data"),
-          AbstractStackRecipeDataComponent.class);
 
-  private static final Map<Item, Function<ItemStack, AbstractStackRecipeDataComponent>>
-      ITEM_2_RECIPE_DATA =
-      new HashMap<>();
   private static final Map<Class<? extends BlockEntity>, Function<BlockEntity, AbstractBlockEntityRecipeDataComponent<?>>>
       BLOCK_ENTITY_2_RECIPE_DATA = new HashMap<>();
 
@@ -65,11 +55,6 @@ public class PolymorphFabricComponents implements BlockComponentInitializer,
   public static void registerBlockEntity(Class<? extends BlockEntity> blockEntityClass,
                                          Function<BlockEntity, AbstractBlockEntityRecipeDataComponent<?>> blockEntity2RecipeData) {
     BLOCK_ENTITY_2_RECIPE_DATA.put(blockEntityClass, blockEntity2RecipeData);
-  }
-
-  public static void registerItem(Item item,
-                                  Function<ItemStack, AbstractStackRecipeDataComponent> stack2RecipeData) {
-    ITEM_2_RECIPE_DATA.put(item, stack2RecipeData);
   }
 
   @Override
@@ -86,13 +71,5 @@ public class PolymorphFabricComponents implements BlockComponentInitializer,
   @Override
   public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
     registry.registerFor(Player.class, PLAYER_RECIPE_DATA, PlayerRecipeDataComponent::new);
-  }
-
-  @Override
-  public void registerItemComponentFactories(@Nonnull ItemComponentFactoryRegistry registry) {
-
-    for (Map.Entry<Item, Function<ItemStack, AbstractStackRecipeDataComponent>> entry : ITEM_2_RECIPE_DATA.entrySet()) {
-      registry.register(entry.getKey(), STACK_RECIPE_DATA, stack -> entry.getValue().apply(stack));
-    }
   }
 }

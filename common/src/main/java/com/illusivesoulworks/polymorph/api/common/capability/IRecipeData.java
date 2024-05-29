@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import javax.annotation.Nonnull;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -65,7 +66,7 @@ public interface IRecipeData<E> {
   void setFailing(boolean failing);
 
   @Nonnull
-  CompoundTag writeNBT();
+  CompoundTag writeNBT(HolderLookup.Provider provider);
 
-  void readNBT(CompoundTag compound);
+  void readNBT(HolderLookup.Provider provider, CompoundTag compound);
 }

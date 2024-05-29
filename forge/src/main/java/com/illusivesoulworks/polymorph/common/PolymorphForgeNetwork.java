@@ -21,8 +21,6 @@ import com.illusivesoulworks.polymorph.api.PolymorphApi;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketBlockEntityListener;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketPersistentRecipeSelection;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketPlayerRecipeSelection;
-import com.illusivesoulworks.polymorph.common.network.client.CPacketStackRecipeSelection;
-import com.illusivesoulworks.polymorph.common.network.server.SPacketBlockEntityRecipeSync;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketHighlightRecipe;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketPlayerRecipeSync;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketRecipesList;
@@ -30,6 +28,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -58,31 +58,30 @@ public class PolymorphForgeNetwork {
         .simpleChannel();
 
     // Server-to-Client
-    registerS2C(SPacketRecipesList.class, SPacketRecipesList::write, SPacketRecipesList::new,
-        SPacketRecipesList::handle);
-    registerS2C(SPacketHighlightRecipe.class, SPacketHighlightRecipe::write,
-        SPacketHighlightRecipe::new, SPacketHighlightRecipe::handle);
-    registerS2C(SPacketPlayerRecipeSync.class, SPacketPlayerRecipeSync::write,
-        SPacketPlayerRecipeSync::new, SPacketPlayerRecipeSync::handle);
-    registerS2C(SPacketBlockEntityRecipeSync.class, SPacketBlockEntityRecipeSync::write,
-        SPacketBlockEntityRecipeSync::new, SPacketBlockEntityRecipeSync::handle);
+    registerS2CPlay(SPacketRecipesList.class, SPacketRecipesList.STREAM_CODEC::encode,
+        SPacketRecipesList.STREAM_CODEC::decode, SPacketRecipesList::handle);
+    registerS2C(SPacketHighlightRecipe.class, SPacketHighlightRecipe.STREAM_CODEC::encode,
+        SPacketHighlightRecipe.STREAM_CODEC::decode, SPacketHighlightRecipe::handle);
+    registerS2CPlay(SPacketPlayerRecipeSync.class, SPacketPlayerRecipeSync.STREAM_CODEC::encode,
+        SPacketPlayerRecipeSync.STREAM_CODEC::decode, SPacketPlayerRecipeSync::handle);
 
     // Client-to-Server
-    registerC2S(CPacketPlayerRecipeSelection.class, CPacketPlayerRecipeSelection::write,
-        CPacketPlayerRecipeSelection::new, CPacketPlayerRecipeSelection::handle);
-    registerC2S(CPacketPersistentRecipeSelection.class, CPacketPersistentRecipeSelection::write,
-        CPacketPersistentRecipeSelection::new, CPacketPersistentRecipeSelection::handle);
-    registerC2S(CPacketStackRecipeSelection.class, CPacketStackRecipeSelection::write,
-        CPacketStackRecipeSelection::new, CPacketStackRecipeSelection::handle);
-    registerC2S(CPacketBlockEntityListener.class, CPacketBlockEntityListener::write,
-        CPacketBlockEntityListener::new, CPacketBlockEntityListener::handle);
+    registerC2S(CPacketPlayerRecipeSelection.class,
+        CPacketPlayerRecipeSelection.STREAM_CODEC::encode,
+        CPacketPlayerRecipeSelection.STREAM_CODEC::decode, CPacketPlayerRecipeSelection::handle);
+    registerC2S(CPacketPersistentRecipeSelection.class,
+        CPacketPersistentRecipeSelection.STREAM_CODEC::encode,
+        CPacketPersistentRecipeSelection.STREAM_CODEC::decode,
+        CPacketPersistentRecipeSelection::handle);
+    registerC2S(CPacketBlockEntityListener.class, CPacketBlockEntityListener.STREAM_CODEC::encode,
+        CPacketBlockEntityListener.STREAM_CODEC::decode, CPacketBlockEntityListener::handle);
   }
 
-  public static <M> void registerC2S(Class<M> clazz, BiConsumer<M, FriendlyByteBuf> encoder,
+  public static <M> void registerC2S(Class<M> clazz, BiConsumer<FriendlyByteBuf, M> encoder,
                                      Function<FriendlyByteBuf, M> decoder,
                                      BiConsumer<M, ServerPlayer> handler) {
     instance.messageBuilder(clazz)
-        .encoder(encoder)
+        .encoder((m, buf) -> encoder.accept(buf, m))
         .decoder(decoder)
         .consumerNetworkThread((m, context) -> {
           context.enqueueWork(() -> {
@@ -97,11 +96,29 @@ public class PolymorphForgeNetwork {
         .add();
   }
 
-  public static <M> void registerS2C(Class<M> clazz, BiConsumer<M, FriendlyByteBuf> encoder,
-                                     Function<FriendlyByteBuf, M> decoder, Consumer<M> handler) {
+  public static <M extends CustomPacketPayload> void registerS2C(Class<M> clazz,
+                                                                 BiConsumer<FriendlyByteBuf, M> encoder,
+                                                                 Function<FriendlyByteBuf, M> decoder,
+                                                                 Consumer<M> handler) {
     instance.messageBuilder(clazz)
-        .encoder(encoder)
+        .encoder((m, buf) -> encoder.accept(buf, m))
         .decoder(decoder)
+        .consumerNetworkThread((BiConsumer<M, CustomPayloadEvent.Context>) (m, context) ->
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+                () -> () -> {
+                  context.enqueueWork(() -> handler.accept(m));
+                  context.setPacketHandled(true);
+                }))
+        .add();
+  }
+
+  public static <M extends CustomPacketPayload> void registerS2CPlay(Class<M> clazz,
+                                                                     BiConsumer<RegistryFriendlyByteBuf, M> encoder,
+                                                                     Function<RegistryFriendlyByteBuf, M> decoder,
+                                                                     Consumer<M> handler) {
+    instance.messageBuilder(clazz)
+        .encoder((m, buf) -> encoder.accept((RegistryFriendlyByteBuf) buf, m))
+        .decoder(buf -> decoder.apply((RegistryFriendlyByteBuf) buf))
         .consumerNetworkThread((BiConsumer<M, CustomPayloadEvent.Context>) (m, context) ->
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
                 () -> () -> {

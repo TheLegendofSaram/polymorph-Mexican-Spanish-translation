@@ -20,11 +20,9 @@ package com.illusivesoulworks.polymorph.platform.services;
 import com.illusivesoulworks.polymorph.api.common.base.IPolymorphPacketDistributor;
 import com.illusivesoulworks.polymorph.api.common.capability.IBlockEntityRecipeData;
 import com.illusivesoulworks.polymorph.api.common.capability.IPlayerRecipeData;
-import com.illusivesoulworks.polymorph.api.common.capability.IStackRecipeData;
 import java.nio.file.Path;
 import java.util.Optional;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -45,8 +43,6 @@ public interface IPlatform {
   Optional<? extends IPlayerRecipeData> getRecipeData(Player player);
 
   Optional<? extends IBlockEntityRecipeData> getRecipeData(BlockEntity blockEntity);
-
-  Optional<? extends IStackRecipeData> getRecipeData(ItemStack stack);
 
   IPolymorphPacketDistributor getPacketDistributor();
 }

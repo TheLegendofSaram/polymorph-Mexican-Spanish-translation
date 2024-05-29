@@ -22,9 +22,9 @@ import com.illusivesoulworks.polymorph.api.common.capability.IRecipeData;
 import com.illusivesoulworks.polymorph.common.capability.PlayerRecipeData;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -58,8 +58,6 @@ public class PolymorphNeoForgeCapabilities {
       } else if (attachmentHolder instanceof BlockEntity blockEntity) {
         PolymorphApi.common().tryCreateRecipeData(blockEntity)
             .ifPresent(rd -> this.recipeData = rd);
-      } else if (attachmentHolder instanceof ItemStack stack) {
-        PolymorphApi.common().tryCreateRecipeData(stack).ifPresent(rd -> this.recipeData = rd);
       }
     }
 
@@ -68,19 +66,19 @@ public class PolymorphNeoForgeCapabilities {
     }
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(@Nonnull HolderLookup.Provider provider) {
 
       if (this.recipeData != null) {
-        return this.recipeData.writeNBT();
+        return this.recipeData.writeNBT(provider);
       }
       return null;
     }
 
     @Override
-    public void deserializeNBT(@Nonnull CompoundTag nbt) {
+    public void deserializeNBT(@Nonnull HolderLookup.Provider provider, @Nonnull CompoundTag nbt) {
 
       if (this.recipeData != null) {
-        this.recipeData.readNBT(nbt);
+        this.recipeData.readNBT(provider, nbt);
       }
     }
   }

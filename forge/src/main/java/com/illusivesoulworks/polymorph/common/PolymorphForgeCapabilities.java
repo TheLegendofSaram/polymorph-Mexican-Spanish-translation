@@ -20,7 +20,6 @@ package com.illusivesoulworks.polymorph.common;
 import com.illusivesoulworks.polymorph.api.PolymorphApi;
 import com.illusivesoulworks.polymorph.api.common.capability.IBlockEntityRecipeData;
 import com.illusivesoulworks.polymorph.api.common.capability.IPlayerRecipeData;
-import com.illusivesoulworks.polymorph.api.common.capability.IStackRecipeData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -34,14 +33,9 @@ public class PolymorphForgeCapabilities {
   public static final Capability<IBlockEntityRecipeData> BLOCK_ENTITY_RECIPE_DATA =
       CapabilityManager.get(new CapabilityToken<>() {
       });
-  public static final Capability<IStackRecipeData> STACK_RECIPE_DATA =
-      CapabilityManager.get(new CapabilityToken<>() {
-      });
 
   public static final ResourceLocation PLAYER_RECIPE_DATA_ID =
       new ResourceLocation(PolymorphApi.MOD_ID, "player_recipe_data");
   public static final ResourceLocation BLOCK_ENTITY_RECIPE_DATA_ID =
       new ResourceLocation(PolymorphApi.MOD_ID, "block_entity_recipe_data");
-  public static final ResourceLocation STACK_RECIPE_DATA_ID =
-      new ResourceLocation(PolymorphApi.MOD_ID, "stack_recipe_data");
 }

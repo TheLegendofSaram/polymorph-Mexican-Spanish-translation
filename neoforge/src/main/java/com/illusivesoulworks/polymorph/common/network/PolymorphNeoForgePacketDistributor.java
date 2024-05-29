@@ -22,13 +22,11 @@ import com.illusivesoulworks.polymorph.api.common.base.IRecipePair;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketBlockEntityListener;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketPersistentRecipeSelection;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketPlayerRecipeSelection;
-import com.illusivesoulworks.polymorph.common.network.client.CPacketStackRecipeSelection;
-import com.illusivesoulworks.polymorph.common.network.server.SPacketBlockEntityRecipeSync;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketHighlightRecipe;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketPlayerRecipeSync;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketRecipesList;
+import java.util.Optional;
 import java.util.SortedSet;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -37,17 +35,12 @@ public class PolymorphNeoForgePacketDistributor implements IPolymorphPacketDistr
 
   @Override
   public void sendPlayerRecipeSelectionC2S(ResourceLocation resourceLocation) {
-    PacketDistributor.SERVER.noArg().send(new CPacketPlayerRecipeSelection(resourceLocation));
+    PacketDistributor.sendToServer(new CPacketPlayerRecipeSelection(resourceLocation));
   }
 
   @Override
   public void sendPersistentRecipeSelectionC2S(ResourceLocation resourceLocation) {
-    PacketDistributor.SERVER.noArg().send(new CPacketPersistentRecipeSelection(resourceLocation));
-  }
-
-  @Override
-  public void sendStackRecipeSelectionC2S(ResourceLocation resourceLocation) {
-    PacketDistributor.SERVER.noArg().send(new CPacketStackRecipeSelection(resourceLocation));
+    PacketDistributor.sendToServer(new CPacketPersistentRecipeSelection(resourceLocation));
   }
 
   @Override
@@ -63,27 +56,25 @@ public class PolymorphNeoForgePacketDistributor implements IPolymorphPacketDistr
   @Override
   public void sendRecipesListS2C(ServerPlayer player, SortedSet<IRecipePair> recipesList,
                                  ResourceLocation selected) {
-    PacketDistributor.PLAYER.with(player).send(new SPacketRecipesList(recipesList, selected));
+    PacketDistributor.sendToPlayer(player,
+        new SPacketRecipesList(Optional.ofNullable(recipesList), Optional.ofNullable(selected)));
   }
 
   @Override
   public void sendHighlightRecipeS2C(ServerPlayer player, ResourceLocation pResourceLocation) {
-    PacketDistributor.PLAYER.with(player).send(new SPacketHighlightRecipe(pResourceLocation));
+    PacketDistributor.sendToPlayer(player, new SPacketHighlightRecipe(pResourceLocation));
   }
 
   @Override
   public void sendPlayerSyncS2C(ServerPlayer player, SortedSet<IRecipePair> recipesList,
                                 ResourceLocation selected) {
-    PacketDistributor.PLAYER.with(player).send(new SPacketPlayerRecipeSync(recipesList, selected));
-  }
-
-  @Override
-  public void sendBlockEntitySyncS2C(BlockPos blockPos, ResourceLocation selected) {
-    PacketDistributor.ALL.noArg().send(new SPacketBlockEntityRecipeSync(blockPos, selected));
+    PacketDistributor.sendToPlayer(player,
+        new SPacketPlayerRecipeSync(Optional.ofNullable(recipesList),
+            Optional.ofNullable(selected)));
   }
 
   @Override
   public void sendBlockEntityListenerC2S(boolean add) {
-    PacketDistributor.SERVER.noArg().send(new CPacketBlockEntityListener(add));
+    PacketDistributor.sendToServer(new CPacketBlockEntityListener(add));
   }
 }

@@ -21,6 +21,7 @@ import com.illusivesoulworks.polymorph.api.PolymorphApi;
 import com.illusivesoulworks.polymorph.common.integration.PolymorphIntegrations;
 import javax.annotation.Nonnull;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,12 +30,13 @@ import net.minecraft.world.inventory.ItemCombinerMenu;
 
 public record CPacketPlayerRecipeSelection(ResourceLocation recipe) implements CustomPacketPayload {
 
-  public static final ResourceLocation ID =
-      new ResourceLocation(PolymorphApi.MOD_ID, "player_recipe_selection");
-
-  public CPacketPlayerRecipeSelection(FriendlyByteBuf buf) {
-    this(buf.readResourceLocation());
-  }
+  public static final Type<CPacketPlayerRecipeSelection> TYPE =
+      new Type<>(new ResourceLocation(PolymorphApi.MOD_ID, "player_recipe_selection"));
+  public static final StreamCodec<FriendlyByteBuf, CPacketPlayerRecipeSelection> STREAM_CODEC =
+      StreamCodec.composite(
+          ResourceLocation.STREAM_CODEC,
+          CPacketPlayerRecipeSelection::recipe,
+          CPacketPlayerRecipeSelection::new);
 
   public static void handle(CPacketPlayerRecipeSelection packet, ServerPlayer player) {
     AbstractContainerMenu container = player.containerMenu;
@@ -50,14 +52,9 @@ public record CPacketPlayerRecipeSelection(ResourceLocation recipe) implements C
     });
   }
 
-  @Override
-  public void write(@Nonnull FriendlyByteBuf buf) {
-    buf.writeResourceLocation(recipe());
-  }
-
   @Nonnull
   @Override
-  public ResourceLocation id() {
-    return ID;
+  public Type<? extends CustomPacketPayload> type() {
+    return TYPE;
   }
 }

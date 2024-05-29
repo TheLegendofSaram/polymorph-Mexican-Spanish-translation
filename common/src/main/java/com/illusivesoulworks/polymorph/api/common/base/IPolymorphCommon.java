@@ -19,12 +19,10 @@ package com.illusivesoulworks.polymorph.api.common.base;
 
 import com.illusivesoulworks.polymorph.api.common.capability.IBlockEntityRecipeData;
 import com.illusivesoulworks.polymorph.api.common.capability.IPlayerRecipeData;
-import com.illusivesoulworks.polymorph.api.common.capability.IStackRecipeData;
 import java.util.Optional;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public interface IPolymorphCommon {
@@ -36,32 +34,17 @@ public interface IPolymorphCommon {
   Optional<? extends IBlockEntityRecipeData> getRecipeDataFromBlockEntity(
       AbstractContainerMenu containerMenu);
 
-  Optional<? extends IStackRecipeData> tryCreateRecipeData(ItemStack stack);
-
-  Optional<? extends IStackRecipeData> getRecipeData(ItemStack stack);
-
-  Optional<? extends IStackRecipeData> getRecipeDataFromItemStack(AbstractContainerMenu container);
-
   Optional<? extends IPlayerRecipeData> getRecipeData(Player player);
 
   void registerBlockEntity2RecipeData(IBlockEntity2RecipeData blockEntity2RecipeData);
 
   void registerContainer2BlockEntity(IContainer2BlockEntity container2BlockEntity);
 
-  void registerItemStack2RecipeData(IItemStack2RecipeData stack2RecipeData);
-
-  void registerContainer2ItemStack(IContainer2ItemStack container2ItemStack);
-
   IPolymorphPacketDistributor getPacketDistributor();
 
   void setServer(MinecraftServer pServer);
 
   Optional<MinecraftServer> getServer();
-
-  interface IItemStack2RecipeData {
-
-    IStackRecipeData createRecipeData(ItemStack stack);
-  }
 
   interface IBlockEntity2RecipeData {
 
@@ -71,10 +54,5 @@ public interface IPolymorphCommon {
   interface IContainer2BlockEntity {
 
     BlockEntity getBlockEntity(AbstractContainerMenu containerMenu);
-  }
-
-  interface IContainer2ItemStack {
-
-    ItemStack getItemStack(AbstractContainerMenu containerMenu);
   }
 }

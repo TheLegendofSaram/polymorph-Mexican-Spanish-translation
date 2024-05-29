@@ -21,7 +21,6 @@ import com.illusivesoulworks.polymorph.api.PolymorphApi;
 import com.illusivesoulworks.polymorph.api.common.capability.IBlockEntityRecipeData;
 import com.illusivesoulworks.polymorph.api.common.capability.IPlayerRecipeData;
 import com.illusivesoulworks.polymorph.api.common.capability.IRecipeData;
-import com.illusivesoulworks.polymorph.api.common.capability.IStackRecipeData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +29,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -77,12 +75,6 @@ public class RecipeSelection {
     Optional<? extends IPlayerRecipeData> maybeData = PolymorphApi.common().getRecipeData(player);
     maybeData.ifPresent(playerRecipeData -> playerRecipeData.setContainerMenu(containerMenu));
     return getRecipe(type, inventory, level, maybeData, recipes);
-  }
-
-  public static <T extends Recipe<C>, C extends Container> Optional<RecipeHolder<T>> getStackRecipe(
-      RecipeType<T> type, C inventory, Level level, ItemStack stack) {
-    Optional<? extends IStackRecipeData> maybeData = PolymorphApi.common().getRecipeData(stack);
-    return getRecipe(type, inventory, level, maybeData, new ArrayList<>());
   }
 
   public static <T extends Recipe<C>, C extends Container> Optional<RecipeHolder<T>> getBlockEntityRecipe(

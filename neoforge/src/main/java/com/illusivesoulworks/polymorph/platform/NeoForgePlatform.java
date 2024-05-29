@@ -20,14 +20,12 @@ package com.illusivesoulworks.polymorph.platform;
 import com.illusivesoulworks.polymorph.api.common.base.IPolymorphPacketDistributor;
 import com.illusivesoulworks.polymorph.api.common.capability.IBlockEntityRecipeData;
 import com.illusivesoulworks.polymorph.api.common.capability.IPlayerRecipeData;
-import com.illusivesoulworks.polymorph.api.common.capability.IStackRecipeData;
 import com.illusivesoulworks.polymorph.common.PolymorphNeoForgeCapabilities;
 import com.illusivesoulworks.polymorph.common.network.PolymorphNeoForgePacketDistributor;
 import com.illusivesoulworks.polymorph.platform.services.IPlatform;
 import java.nio.file.Path;
 import java.util.Optional;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.fml.ModList;
@@ -71,8 +69,8 @@ public class NeoForgePlatform implements IPlatform {
     if (isShaped(recipe1) && isShaped(recipe2)) {
       IShapedRecipe<?> shaped = (IShapedRecipe<?>) recipe1;
       IShapedRecipe<?> otherShaped = (IShapedRecipe<?>) recipe2;
-      return shaped.getRecipeHeight() == otherShaped.getRecipeHeight() &&
-          shaped.getRecipeWidth() == otherShaped.getRecipeWidth();
+      return shaped.getHeight() == otherShaped.getHeight() &&
+          shaped.getWidth() == otherShaped.getWidth();
     }
     return true;
   }
@@ -88,13 +86,6 @@ public class NeoForgePlatform implements IPlatform {
   public Optional<? extends IBlockEntityRecipeData> getRecipeData(BlockEntity blockEntity) {
     return Optional.ofNullable((IBlockEntityRecipeData) blockEntity.getData(
         PolymorphNeoForgeCapabilities.RECIPE_DATA.get()).getRecipeData());
-  }
-
-  @Override
-  public Optional<? extends IStackRecipeData> getRecipeData(ItemStack stack) {
-    return Optional.ofNullable(
-        (IStackRecipeData) stack.getData(PolymorphNeoForgeCapabilities.RECIPE_DATA.get())
-            .getRecipeData());
   }
 
   @Override

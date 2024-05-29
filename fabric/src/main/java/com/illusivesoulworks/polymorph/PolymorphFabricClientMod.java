@@ -18,16 +18,35 @@
 package com.illusivesoulworks.polymorph;
 
 import com.illusivesoulworks.polymorph.client.ClientEventsListener;
-import com.illusivesoulworks.polymorph.common.PolymorphFabricNetwork;
+import com.illusivesoulworks.polymorph.common.network.server.SPacketHighlightRecipe;
+import com.illusivesoulworks.polymorph.common.network.server.SPacketPlayerRecipeSync;
+import com.illusivesoulworks.polymorph.common.network.server.SPacketRecipesList;
+import java.util.function.Consumer;
 import net.fabricmc.api.ClientModInitializer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public class PolymorphFabricClientMod implements ClientModInitializer {
 
   @Override
   public void onInitializeClient() {
     PolymorphCommonMod.clientSetup();
-    PolymorphFabricNetwork.clientSetup();
     ClientEventsListener.setup();
+
+    registerClientReceiver(SPacketHighlightRecipe.TYPE, SPacketHighlightRecipe::handle);
+    registerClientReceiver(SPacketPlayerRecipeSync.TYPE, SPacketPlayerRecipeSync::handle);
+    registerClientReceiver(SPacketRecipesList.TYPE, SPacketRecipesList::handle);
+  }
+
+  private static <M extends CustomPacketPayload> void registerClientReceiver(
+      CustomPacketPayload.Type<M> type, Consumer<M> handler) {
+    ClientPlayNetworking.registerGlobalReceiver(type, (payload, context) -> {
+      Minecraft mc = context.client();
+
+      if (mc != null) {
+        mc.execute(() -> handler.accept(payload));
+      }
+    });
   }
 }

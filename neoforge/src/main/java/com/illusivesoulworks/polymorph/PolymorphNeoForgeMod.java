@@ -26,8 +26,6 @@ import com.illusivesoulworks.polymorph.common.network.ServerPayloadHandler;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketBlockEntityListener;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketPersistentRecipeSelection;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketPlayerRecipeSelection;
-import com.illusivesoulworks.polymorph.common.network.client.CPacketStackRecipeSelection;
-import com.illusivesoulworks.polymorph.common.network.server.SPacketBlockEntityRecipeSync;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketHighlightRecipe;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketPlayerRecipeSync;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketRecipesList;
@@ -36,8 +34,8 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
-import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 @Mod(PolymorphConstants.MOD_ID)
 public class PolymorphNeoForgeMod {
@@ -60,25 +58,23 @@ public class PolymorphNeoForgeMod {
     NeoForge.EVENT_BUS.register(new ClientEventsListener());
   }
 
-  private void registerPayload(final RegisterPayloadHandlerEvent evt) {
-    final IPayloadRegistrar registrar = evt.registrar(PolymorphApi.MOD_ID);
+  private void registerPayload(final RegisterPayloadHandlersEvent evt) {
+    final PayloadRegistrar registrar = evt.registrar(PolymorphApi.MOD_ID);
 
-    registrar.play(CPacketBlockEntityListener.ID, CPacketBlockEntityListener::new,
-        handler -> handler.server(ServerPayloadHandler.getInstance()::handlePacket));
-    registrar.play(CPacketPersistentRecipeSelection.ID, CPacketPersistentRecipeSelection::new,
-        handler -> handler.server(ServerPayloadHandler.getInstance()::handlePacket));
-    registrar.play(CPacketPlayerRecipeSelection.ID, CPacketPlayerRecipeSelection::new,
-        handler -> handler.server(ServerPayloadHandler.getInstance()::handlePacket));
-    registrar.play(CPacketStackRecipeSelection.ID, CPacketStackRecipeSelection::new,
-        handler -> handler.server(ServerPayloadHandler.getInstance()::handlePacket));
+    registrar.playToClient(SPacketRecipesList.TYPE, SPacketRecipesList.STREAM_CODEC,
+        ClientPayloadHandler.getInstance()::handlePacket);
+    registrar.playToClient(SPacketHighlightRecipe.TYPE, SPacketHighlightRecipe.STREAM_CODEC,
+        ClientPayloadHandler.getInstance()::handlePacket);
+    registrar.playToClient(SPacketPlayerRecipeSync.TYPE, SPacketPlayerRecipeSync.STREAM_CODEC,
+        ClientPayloadHandler.getInstance()::handlePacket);
 
-    registrar.play(SPacketBlockEntityRecipeSync.ID, SPacketBlockEntityRecipeSync::new,
-        handler -> handler.client(ClientPayloadHandler.getInstance()::handlePacket));
-    registrar.play(SPacketHighlightRecipe.ID, SPacketHighlightRecipe::new,
-        handler -> handler.client(ClientPayloadHandler.getInstance()::handlePacket));
-    registrar.play(SPacketPlayerRecipeSync.ID, SPacketPlayerRecipeSync::new,
-        handler -> handler.client(ClientPayloadHandler.getInstance()::handlePacket));
-    registrar.play(SPacketRecipesList.ID, SPacketRecipesList::new,
-        handler -> handler.client(ClientPayloadHandler.getInstance()::handlePacket));
+    registrar.playToServer(CPacketPersistentRecipeSelection.TYPE,
+        CPacketPersistentRecipeSelection.STREAM_CODEC,
+        ServerPayloadHandler.getInstance()::handlePacket);
+    registrar.playToServer(CPacketPlayerRecipeSelection.TYPE,
+        CPacketPlayerRecipeSelection.STREAM_CODEC,
+        ServerPayloadHandler.getInstance()::handlePacket);
+    registrar.playToServer(CPacketBlockEntityListener.TYPE, CPacketBlockEntityListener.STREAM_CODEC,
+        ServerPayloadHandler.getInstance()::handlePacket);
   }
 }

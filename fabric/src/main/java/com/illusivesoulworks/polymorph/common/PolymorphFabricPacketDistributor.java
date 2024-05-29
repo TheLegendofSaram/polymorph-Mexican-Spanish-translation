@@ -17,24 +17,18 @@
 
 package com.illusivesoulworks.polymorph.common;
 
-import com.illusivesoulworks.polymorph.api.PolymorphApi;
 import com.illusivesoulworks.polymorph.api.common.base.IPolymorphPacketDistributor;
 import com.illusivesoulworks.polymorph.api.common.base.IRecipePair;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketBlockEntityListener;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketPersistentRecipeSelection;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketPlayerRecipeSelection;
-import com.illusivesoulworks.polymorph.common.network.client.CPacketStackRecipeSelection;
-import com.illusivesoulworks.polymorph.common.network.server.SPacketBlockEntityRecipeSync;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketHighlightRecipe;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketPlayerRecipeSync;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketRecipesList;
+import java.util.Optional;
 import java.util.SortedSet;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -42,23 +36,12 @@ public class PolymorphFabricPacketDistributor implements IPolymorphPacketDistrib
 
   @Override
   public void sendPlayerRecipeSelectionC2S(ResourceLocation resourceLocation) {
-    FriendlyByteBuf buf = PacketByteBufs.create();
-    new CPacketPlayerRecipeSelection(resourceLocation).write(buf);
-    ClientPlayNetworking.send(CPacketPlayerRecipeSelection.ID, buf);
+    ClientPlayNetworking.send(new CPacketPlayerRecipeSelection(resourceLocation));
   }
 
   @Override
   public void sendPersistentRecipeSelectionC2S(ResourceLocation resourceLocation) {
-    FriendlyByteBuf buf = PacketByteBufs.create();
-    new CPacketPersistentRecipeSelection(resourceLocation).write(buf);
-    ClientPlayNetworking.send(CPacketPersistentRecipeSelection.ID, buf);
-  }
-
-  @Override
-  public void sendStackRecipeSelectionC2S(ResourceLocation resourceLocation) {
-    FriendlyByteBuf buf = PacketByteBufs.create();
-    new CPacketStackRecipeSelection(resourceLocation).write(buf);
-    ClientPlayNetworking.send(CPacketStackRecipeSelection.ID, buf);
+    ClientPlayNetworking.send(new CPacketPersistentRecipeSelection(resourceLocation));
   }
 
   @Override
@@ -74,37 +57,24 @@ public class PolymorphFabricPacketDistributor implements IPolymorphPacketDistrib
   @Override
   public void sendRecipesListS2C(ServerPlayer player, SortedSet<IRecipePair> recipesList,
                                  ResourceLocation selected) {
-    FriendlyByteBuf buf = PacketByteBufs.create();
-    new SPacketRecipesList(recipesList, selected).write(buf);
-    ServerPlayNetworking.send(player, SPacketRecipesList.ID, buf);
+    ServerPlayNetworking.send(player,
+        new SPacketRecipesList(Optional.ofNullable(recipesList), Optional.ofNullable(selected)));
   }
 
   @Override
   public void sendHighlightRecipeS2C(ServerPlayer player, ResourceLocation resourceLocation) {
-    FriendlyByteBuf buf = PacketByteBufs.create();
-    new SPacketHighlightRecipe(resourceLocation).write(buf);
-    ServerPlayNetworking.send(player, SPacketHighlightRecipe.ID, buf);
+    ServerPlayNetworking.send(player, new SPacketHighlightRecipe(resourceLocation));
   }
 
   @Override
   public void sendPlayerSyncS2C(ServerPlayer player, SortedSet<IRecipePair> recipesList,
                                 ResourceLocation selected) {
-    FriendlyByteBuf buf = PacketByteBufs.create();
-    new SPacketPlayerRecipeSync(recipesList, selected).write(buf);
-    ServerPlayNetworking.send(player, SPacketPlayerRecipeSync.ID, buf);
-  }
-
-  @Override
-  public void sendBlockEntitySyncS2C(BlockPos blockPos, ResourceLocation selected) {
-    FriendlyByteBuf buf = PacketByteBufs.create();
-    new SPacketBlockEntityRecipeSync(blockPos, selected).write(buf);
-    PolymorphApi.common().getServer().ifPresent(server -> PlayerLookup.all(server).forEach(player -> ServerPlayNetworking.send(player, SPacketBlockEntityRecipeSync.ID, buf)));
+    ServerPlayNetworking.send(player, new SPacketPlayerRecipeSync(Optional.ofNullable(recipesList),
+        Optional.ofNullable(selected)));
   }
 
   @Override
   public void sendBlockEntityListenerC2S(boolean add) {
-    FriendlyByteBuf buf = PacketByteBufs.create();
-    new CPacketBlockEntityListener(add).write(buf);
-    ClientPlayNetworking.send(CPacketBlockEntityListener.ID, buf);
+    ClientPlayNetworking.send(new CPacketBlockEntityListener(add));
   }
 }

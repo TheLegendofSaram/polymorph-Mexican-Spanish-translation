@@ -31,6 +31,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nonnull;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -46,6 +47,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.LevelStorageSource;
 
 public abstract class AbstractRecipeData<E> implements IRecipeData<E> {
 
@@ -293,7 +295,7 @@ public abstract class AbstractRecipeData<E> implements IRecipeData<E> {
   }
 
   @Override
-  public void readNBT(CompoundTag compoundTag) {
+  public void readNBT(HolderLookup.Provider provider, CompoundTag compoundTag) {
 
     if (compoundTag.contains("SelectedRecipe")) {
       this.loadedRecipe = new ResourceLocation(compoundTag.getString("SelectedRecipe"));
@@ -307,7 +309,7 @@ public abstract class AbstractRecipeData<E> implements IRecipeData<E> {
       for (Tag inbt : list) {
         CompoundTag tag = (CompoundTag) inbt;
         ResourceLocation id = ResourceLocation.tryParse(tag.getString("Id"));
-        ItemStack stack = ItemStack.of(tag.getCompound("ItemStack"));
+        ItemStack stack = ItemStack.parseOptional(provider, tag.getCompound("ItemStack"));
         dataset.add(new RecipePair(id, stack));
       }
     }
@@ -315,7 +317,7 @@ public abstract class AbstractRecipeData<E> implements IRecipeData<E> {
 
   @Nonnull
   @Override
-  public CompoundTag writeNBT() {
+  public CompoundTag writeNBT(HolderLookup.Provider provider) {
     CompoundTag nbt = new CompoundTag();
     this.getSelectedRecipe().ifPresent(
         selected -> nbt.putString("SelectedRecipe", this.selectedRecipe.id().toString()));
@@ -326,7 +328,7 @@ public abstract class AbstractRecipeData<E> implements IRecipeData<E> {
 
       for (IRecipePair data : dataset) {
         CompoundTag tag = new CompoundTag();
-        tag.put("ItemStack", data.getOutput().save(new CompoundTag()));
+        tag.put("ItemStack", data.getOutput().save(provider, new CompoundTag()));
         tag.putString("Id", data.getResourceLocation().toString());
         list.add(tag);
       }

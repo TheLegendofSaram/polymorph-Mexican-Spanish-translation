@@ -20,14 +20,12 @@ package com.illusivesoulworks.polymorph.platform;
 import com.illusivesoulworks.polymorph.api.common.base.IPolymorphPacketDistributor;
 import com.illusivesoulworks.polymorph.api.common.capability.IBlockEntityRecipeData;
 import com.illusivesoulworks.polymorph.api.common.capability.IPlayerRecipeData;
-import com.illusivesoulworks.polymorph.api.common.capability.IStackRecipeData;
 import com.illusivesoulworks.polymorph.common.PolymorphForgeCapabilities;
 import com.illusivesoulworks.polymorph.common.PolymorphForgePacketDistributor;
 import com.illusivesoulworks.polymorph.platform.services.IPlatform;
 import java.nio.file.Path;
 import java.util.Optional;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.crafting.IShapedRecipe;
@@ -85,11 +83,6 @@ public class ForgePlatform implements IPlatform {
   @Override
   public Optional<? extends IBlockEntityRecipeData> getRecipeData(BlockEntity blockEntity) {
     return blockEntity.getCapability(PolymorphForgeCapabilities.BLOCK_ENTITY_RECIPE_DATA).resolve();
-  }
-
-  @Override
-  public Optional<? extends IStackRecipeData> getRecipeData(ItemStack stack) {
-    return stack.getCapability(PolymorphForgeCapabilities.STACK_RECIPE_DATA).resolve();
   }
 
   @Override

@@ -20,12 +20,12 @@ package com.illusivesoulworks.polymorph.common.network.server;
 import com.illusivesoulworks.polymorph.api.PolymorphApi;
 import com.illusivesoulworks.polymorph.api.client.base.IRecipesWidget;
 import com.illusivesoulworks.polymorph.client.recipe.RecipesWidget;
-import com.illusivesoulworks.polymorph.common.capability.PolymorphCapabilities;
 import java.util.Optional;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class ClientPacketHandler {
 
@@ -34,24 +34,10 @@ public class ClientPacketHandler {
 
     if (clientPlayerEntity != null) {
       PolymorphApi.common().getRecipeData(clientPlayerEntity).ifPresent(recipeData -> {
-        recipeData.setRecipesList(packet.recipeList);
-        clientPlayerEntity.level().getRecipeManager().byKey(packet.selected).ifPresent(
-            recipeData::setSelectedRecipe);
+        recipeData.setRecipesList(packet.recipeList().orElse(new TreeSet<>()));
+        packet.selected().flatMap(resourceLocation -> clientPlayerEntity.level().getRecipeManager()
+            .byKey(resourceLocation)).ifPresent(recipeData::setSelectedRecipe);
       });
-    }
-  }
-
-  public static void handle(SPacketBlockEntityRecipeSync packet) {
-    ClientLevel level = Minecraft.getInstance().level;
-
-    if (level != null) {
-      BlockEntity blockEntity = level.getBlockEntity(packet.blockPos());
-
-      if (blockEntity != null) {
-        PolymorphCapabilities.getRecipeData(blockEntity)
-            .ifPresent(recipeData -> level.getRecipeManager().byKey(packet.selected())
-                .ifPresent(recipeData::setSelectedRecipe));
-      }
     }
   }
 
@@ -61,10 +47,12 @@ public class ClientPacketHandler {
     if (clientPlayerEntity != null) {
       Optional<IRecipesWidget> maybeWidget = RecipesWidget.get();
       maybeWidget.ifPresent(
-          widget -> widget.setRecipesList(packet.recipeList, packet.selected));
+          widget -> widget.setRecipesList(packet.recipeList().orElse(new TreeSet<>()),
+              packet.selected().orElse(null)));
 
       if (maybeWidget.isEmpty()) {
-        RecipesWidget.enqueueRecipesList(packet.recipeList, packet.selected);
+        RecipesWidget.enqueueRecipesList(packet.recipeList().orElse(new TreeSet<>()),
+            packet.selected().orElse(null));
       }
     }
   }

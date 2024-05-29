@@ -20,7 +20,6 @@ package com.illusivesoulworks.polymorph.platform;
 import com.illusivesoulworks.polymorph.api.common.base.IPolymorphPacketDistributor;
 import com.illusivesoulworks.polymorph.api.common.capability.IBlockEntityRecipeData;
 import com.illusivesoulworks.polymorph.api.common.capability.IPlayerRecipeData;
-import com.illusivesoulworks.polymorph.api.common.capability.IStackRecipeData;
 import com.illusivesoulworks.polymorph.common.PolymorphFabricPacketDistributor;
 import com.illusivesoulworks.polymorph.common.components.PolymorphFabricComponents;
 import com.illusivesoulworks.polymorph.platform.services.IPlatform;
@@ -28,7 +27,6 @@ import java.nio.file.Path;
 import java.util.Optional;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -83,11 +81,6 @@ public class FabricPlatform implements IPlatform {
   @Override
   public Optional<? extends IBlockEntityRecipeData> getRecipeData(BlockEntity blockEntity) {
     return PolymorphFabricComponents.BLOCK_ENTITY_RECIPE_DATA.maybeGet(blockEntity);
-  }
-
-  @Override
-  public Optional<? extends IStackRecipeData> getRecipeData(ItemStack stack) {
-    return PolymorphFabricComponents.STACK_RECIPE_DATA.maybeGet(stack);
   }
 
   @Override

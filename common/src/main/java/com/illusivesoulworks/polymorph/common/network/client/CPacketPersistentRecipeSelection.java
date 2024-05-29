@@ -22,6 +22,8 @@ import com.illusivesoulworks.polymorph.common.integration.PolymorphIntegrations;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,12 +34,13 @@ import net.minecraft.world.level.Level;
 public record CPacketPersistentRecipeSelection(ResourceLocation recipe) implements
     CustomPacketPayload {
 
-  public static final ResourceLocation ID =
-      new ResourceLocation(PolymorphApi.MOD_ID, "persistent_recipe_selection");
-
-  public CPacketPersistentRecipeSelection(final FriendlyByteBuf buf) {
-    this(buf.readResourceLocation());
-  }
+  public static final Type<CPacketPersistentRecipeSelection> TYPE =
+      new Type<>(new ResourceLocation(PolymorphApi.MOD_ID, "persistent_recipe_selection"));
+  public static final StreamCodec<FriendlyByteBuf, CPacketPersistentRecipeSelection> STREAM_CODEC =
+      StreamCodec.composite(
+          ResourceLocation.STREAM_CODEC,
+          CPacketPersistentRecipeSelection::recipe,
+          CPacketPersistentRecipeSelection::new);
 
   public static void handle(CPacketPersistentRecipeSelection packet, ServerPlayer player) {
     Level world = player.getCommandSenderWorld();
@@ -53,14 +56,9 @@ public record CPacketPersistentRecipeSelection(ResourceLocation recipe) implemen
     });
   }
 
-  @Override
-  public void write(@Nonnull FriendlyByteBuf buf) {
-    buf.writeResourceLocation(recipe());
-  }
-
   @Nonnull
   @Override
-  public ResourceLocation id() {
-    return ID;
+  public Type<? extends CustomPacketPayload> type() {
+    return TYPE;
   }
 }

@@ -41,6 +41,6 @@ public class FurnaceRecipeDataComponent
 
   @Override
   public boolean isEmpty() {
-    return this.getInput().get(0).isEmpty();
+    return this.getInput().getFirst().isEmpty();
   }
 }

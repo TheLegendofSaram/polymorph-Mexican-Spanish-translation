@@ -18,18 +18,15 @@
 package com.illusivesoulworks.polymorph.client;
 
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.event.TickEvent;
 
 @SuppressWarnings("unused")
 public class ClientEventsListener {
 
   @SubscribeEvent
-  public void tick(TickEvent.ClientTickEvent evt) {
-
-    if (evt.phase == TickEvent.Phase.END) {
-      PolymorphClientEvents.tick();
-    }
+  public void tick(ClientTickEvent.Post evt) {
+    PolymorphClientEvents.tick();
   }
 
   @SubscribeEvent

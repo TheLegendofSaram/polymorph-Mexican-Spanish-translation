@@ -22,13 +22,11 @@ import com.illusivesoulworks.polymorph.api.common.base.IRecipePair;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketBlockEntityListener;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketPersistentRecipeSelection;
 import com.illusivesoulworks.polymorph.common.network.client.CPacketPlayerRecipeSelection;
-import com.illusivesoulworks.polymorph.common.network.client.CPacketStackRecipeSelection;
-import com.illusivesoulworks.polymorph.common.network.server.SPacketBlockEntityRecipeSync;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketHighlightRecipe;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketPlayerRecipeSync;
 import com.illusivesoulworks.polymorph.common.network.server.SPacketRecipesList;
+import java.util.Optional;
 import java.util.SortedSet;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.PacketDistributor;
@@ -49,12 +47,6 @@ public class PolymorphForgePacketDistributor implements IPolymorphPacketDistribu
   }
 
   @Override
-  public void sendStackRecipeSelectionC2S(ResourceLocation resourceLocation) {
-    PolymorphForgeNetwork.get()
-        .send(new CPacketStackRecipeSelection(resourceLocation), PacketDistributor.SERVER.noArg());
-  }
-
-  @Override
   public void sendRecipesListS2C(ServerPlayer player) {
     sendRecipesListS2C(player, null);
   }
@@ -67,8 +59,9 @@ public class PolymorphForgePacketDistributor implements IPolymorphPacketDistribu
   @Override
   public void sendRecipesListS2C(ServerPlayer player, SortedSet<IRecipePair> recipesList,
                                  ResourceLocation selected) {
-    PolymorphForgeNetwork.get()
-        .send(new SPacketRecipesList(recipesList, selected), PacketDistributor.PLAYER.with(player));
+    PolymorphForgeNetwork.get().send(
+        new SPacketRecipesList(Optional.ofNullable(recipesList), Optional.ofNullable(selected)),
+        PacketDistributor.PLAYER.with(player));
   }
 
   @Override
@@ -80,14 +73,8 @@ public class PolymorphForgePacketDistributor implements IPolymorphPacketDistribu
   @Override
   public void sendPlayerSyncS2C(ServerPlayer player, SortedSet<IRecipePair> recipesList,
                                 ResourceLocation selected) {
-    PolymorphForgeNetwork.get().send(new SPacketPlayerRecipeSync(recipesList, selected),
-        PacketDistributor.PLAYER.with(player));
-  }
-
-  @Override
-  public void sendBlockEntitySyncS2C(BlockPos blockPos, ResourceLocation selected) {
-    PolymorphForgeNetwork.get()
-        .send(new SPacketBlockEntityRecipeSync(blockPos, selected), PacketDistributor.ALL.noArg());
+    PolymorphForgeNetwork.get().send(new SPacketPlayerRecipeSync(Optional.ofNullable(recipesList),
+        Optional.ofNullable(selected)), PacketDistributor.PLAYER.with(player));
   }
 
   @Override

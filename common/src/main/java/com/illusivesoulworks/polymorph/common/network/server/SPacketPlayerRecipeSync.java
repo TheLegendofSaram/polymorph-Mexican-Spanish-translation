@@ -20,73 +20,75 @@ package com.illusivesoulworks.polymorph.common.network.server;
 import com.illusivesoulworks.polymorph.api.PolymorphApi;
 import com.illusivesoulworks.polymorph.api.common.base.IRecipePair;
 import com.illusivesoulworks.polymorph.common.impl.RecipePair;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.annotation.Nonnull;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
-public class SPacketPlayerRecipeSync implements CustomPacketPayload {
+public record SPacketPlayerRecipeSync(Optional<SortedSet<IRecipePair>> recipeList,
+                                      Optional<ResourceLocation> selected)
+    implements CustomPacketPayload {
 
-  public static final ResourceLocation ID =
-      new ResourceLocation(PolymorphApi.MOD_ID, "recipe_sync");
+  public static final Type<SPacketPlayerRecipeSync> TYPE =
+      new Type<>(new ResourceLocation(PolymorphApi.MOD_ID, "recipe_sync"));
 
-  public final SortedSet<IRecipePair> recipeList;
-  public final ResourceLocation selected;
+  private static final StreamCodec<RegistryFriendlyByteBuf, SortedSet<IRecipePair>> SET_CODEC =
+      new StreamCodec<>() {
+        @Nonnull
+        @Override
+        public SortedSet<IRecipePair> decode(@Nonnull RegistryFriendlyByteBuf buf) {
+          SortedSet<IRecipePair> recipeDataset = new TreeSet<>();
 
-  public SPacketPlayerRecipeSync(FriendlyByteBuf buf) {
-    SortedSet<IRecipePair> recipeDataset = new TreeSet<>();
-    ResourceLocation selected = null;
+          if (buf.isReadable()) {
+            int size = buf.readInt();
 
-    if (buf.isReadable()) {
-      int size = buf.readInt();
+            for (int i = 0; i < size; i++) {
+              recipeDataset.add(
+                  new RecipePair(buf.readResourceLocation(), ItemStack.STREAM_CODEC.decode(buf)));
+            }
+          }
+          return recipeDataset;
+        }
 
-      for (int i = 0; i < size; i++) {
-        recipeDataset.add(new RecipePair(buf.readResourceLocation(), buf.readItem()));
-      }
+        @Override
+        public void encode(@Nonnull RegistryFriendlyByteBuf buf,
+                           @Nonnull SortedSet<IRecipePair> list) {
+          SortedSet<IRecipePair> list1 = new TreeSet<>(list);
 
-      if (buf.isReadable()) {
-        selected = buf.readResourceLocation();
-      }
-    }
-    this.recipeList = recipeDataset;
-    this.selected = selected;
-  }
+          if (!list1.isEmpty()) {
+            buf.writeInt(list1.size());
 
-  public SPacketPlayerRecipeSync(SortedSet<IRecipePair> recipeList, ResourceLocation selected) {
-    this.recipeList = new TreeSet<>();
+            for (IRecipePair data : list1) {
+              buf.writeResourceLocation(data.getResourceLocation());
+              ItemStack.STREAM_CODEC.encode(buf, data.getOutput());
+            }
+          } else {
+            buf.writeInt(0);
+          }
+        }
+      };
 
-    if (recipeList != null) {
-      this.recipeList.addAll(recipeList);
-    }
-    this.selected = selected;
-  }
+  public static final StreamCodec<RegistryFriendlyByteBuf, SPacketPlayerRecipeSync> STREAM_CODEC =
+      StreamCodec.composite(
+          ByteBufCodecs.optional(SET_CODEC),
+          SPacketPlayerRecipeSync::recipeList,
+          ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC),
+          SPacketPlayerRecipeSync::selected,
+          SPacketPlayerRecipeSync::new);
 
   public static void handle(SPacketPlayerRecipeSync packet) {
     ClientPacketHandler.handle(packet);
   }
 
-  @Override
-  public void write(@Nonnull FriendlyByteBuf buf) {
-
-    if (!this.recipeList.isEmpty()) {
-      buf.writeInt(this.recipeList.size());
-
-      for (IRecipePair data : this.recipeList) {
-        buf.writeResourceLocation(data.getResourceLocation());
-        buf.writeItem(data.getOutput());
-      }
-
-      if (this.selected != null) {
-        buf.writeResourceLocation(this.selected);
-      }
-    }
-  }
-
   @Nonnull
   @Override
-  public ResourceLocation id() {
-    return ID;
+  public Type<? extends CustomPacketPayload> type() {
+    return TYPE;
   }
 }

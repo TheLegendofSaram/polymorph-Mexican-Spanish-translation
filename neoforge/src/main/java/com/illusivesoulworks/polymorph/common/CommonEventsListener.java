@@ -22,11 +22,11 @@ import com.illusivesoulworks.polymorph.server.PolymorphCommands;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 @SuppressWarnings("unused")
 public class CommonEventsListener {
@@ -60,10 +60,7 @@ public class CommonEventsListener {
   }
 
   @SubscribeEvent
-  public void levelTick(final TickEvent.LevelTickEvent evt) {
-
-    if (evt.phase == TickEvent.Phase.END) {
-      PolymorphCommonEvents.levelTick(evt.level);
-    }
+  public void levelTick(final LevelTickEvent.Post evt) {
+    PolymorphCommonEvents.levelTick(evt.getLevel());
   }
 }

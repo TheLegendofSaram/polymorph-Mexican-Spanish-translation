@@ -43,11 +43,11 @@ public class MixinRecipeManager {
       cancellable = true)
   private <C extends Container, T extends Recipe<C>> void polymorph$getRecipe(
       RecipeType<T> recipeType, C inventory, Level level, ResourceLocation resourceLocation,
-      CallbackInfoReturnable<Optional<Pair<ResourceLocation, RecipeHolder<T>>>> cb) {
+      CallbackInfoReturnable<Optional<RecipeHolder<T>>> cb) {
 
     if (inventory instanceof BlockEntity) {
       RecipeSelection.getBlockEntityRecipe(recipeType, inventory, level, (BlockEntity) inventory)
-          .ifPresent(recipe -> cb.setReturnValue(Optional.of(Pair.of(resourceLocation, recipe))));
+          .ifPresent(recipe -> cb.setReturnValue(Optional.of(recipe)));
     }
   }
 

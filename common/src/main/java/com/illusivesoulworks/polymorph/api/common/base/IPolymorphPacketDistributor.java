@@ -28,8 +28,6 @@ public interface IPolymorphPacketDistributor {
 
   void sendPersistentRecipeSelectionC2S(ResourceLocation resourceLocation);
 
-  void sendStackRecipeSelectionC2S(ResourceLocation resourceLocation);
-
   void sendRecipesListS2C(ServerPlayer player);
 
   void sendRecipesListS2C(ServerPlayer player, SortedSet<IRecipePair> recipesList);
@@ -41,8 +39,6 @@ public interface IPolymorphPacketDistributor {
 
   void sendPlayerSyncS2C(ServerPlayer player, SortedSet<IRecipePair> recipesList,
                          ResourceLocation selected);
-
-  void sendBlockEntitySyncS2C(BlockPos blockPos, ResourceLocation selected);
 
   void sendBlockEntityListenerC2S(boolean add);
 }
