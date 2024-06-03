@@ -21,6 +21,7 @@ import com.illusivesoulworks.polymorph.api.PolymorphApi;
 import com.illusivesoulworks.polymorph.api.client.base.IRecipesWidget;
 import com.illusivesoulworks.polymorph.api.common.base.IRecipePair;
 import com.illusivesoulworks.polymorph.platform.Services;
+import com.mojang.datafixers.util.Pair;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -69,10 +70,20 @@ public abstract class AbstractRecipesWidget implements IRecipesWidget {
     int y = Services.CLIENT_PLATFORM.getScreenTop(this.containerScreen) + this.getYPos();
     this.selectionWidget =
         new SelectionWidget(x + this.xOffset, y + this.yOffset, this.getXPos() + this.xOffset,
-            this.getYPos() + this.yOffset, this::selectRecipe, this.containerScreen);
+            this.getYPos() + this.yOffset, this.getOutputSprites(), this::selectRecipe,
+            this.containerScreen);
     this.openButton = new OpenSelectionButton(this.containerScreen, this.getXPos(), this.getYPos(),
+        this.getSelectorSprites(),
         clickWidget -> this.selectionWidget.setActive(!this.selectionWidget.isActive()));
     this.openButton.visible = this.selectionWidget.getOutputWidgets().size() > 1;
+  }
+
+  public WidgetSprites getSelectorSprites() {
+    return SELECTOR;
+  }
+
+  public Pair<WidgetSprites, WidgetSprites> getOutputSprites() {
+    return Pair.of(OUTPUT, CURRENT_OUTPUT);
   }
 
   protected void resetWidgetOffsets() {

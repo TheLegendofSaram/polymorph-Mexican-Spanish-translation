@@ -19,10 +19,10 @@ package com.illusivesoulworks.polymorph.api.client.widget;
 
 import com.illusivesoulworks.polymorph.platform.Services;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import javax.annotation.Nonnull;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
 public class OpenSelectionButton extends ImageButton {
@@ -32,8 +32,8 @@ public class OpenSelectionButton extends ImageButton {
   private int yOffset;
 
   public OpenSelectionButton(AbstractContainerScreen<?> containerScreen, int x, int y,
-                             OnPress onPress) {
-    super(0, 0, 16, 16, AbstractRecipesWidget.SELECTOR, onPress);
+                             WidgetSprites sprites, OnPress onPress) {
+    super(0, 0, 16, 16, sprites, onPress);
     this.containerScreen = containerScreen;
     this.xOffset = x;
     this.yOffset = y;

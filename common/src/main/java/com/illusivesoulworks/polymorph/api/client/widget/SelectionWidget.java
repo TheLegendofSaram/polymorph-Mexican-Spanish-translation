@@ -20,6 +20,7 @@ package com.illusivesoulworks.polymorph.api.client.widget;
 import com.illusivesoulworks.polymorph.api.common.base.IRecipePair;
 import com.illusivesoulworks.polymorph.platform.Services;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.datafixers.util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +29,7 @@ import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.resources.ResourceLocation;
@@ -37,6 +39,7 @@ public class SelectionWidget implements Renderable, GuiEventListener {
   private final Consumer<ResourceLocation> onSelect;
   private final AbstractContainerScreen<?> containerScreen;
   private final List<OutputWidget> outputWidgets = new ArrayList<>();
+  private final Pair<WidgetSprites, WidgetSprites> sprites;
   private int xOffset;
   private int yOffset;
 
@@ -48,6 +51,7 @@ public class SelectionWidget implements Renderable, GuiEventListener {
   private int lastY;
 
   public SelectionWidget(int x, int y, int xOffset, int yOffset,
+                         Pair<WidgetSprites, WidgetSprites> sprites,
                          Consumer<ResourceLocation> onSelect,
                          AbstractContainerScreen<?> containerScreen) {
     this.setPosition(x, y);
@@ -55,6 +59,7 @@ public class SelectionWidget implements Renderable, GuiEventListener {
     this.containerScreen = containerScreen;
     this.xOffset = xOffset;
     this.yOffset = yOffset;
+    this.sprites = sprites;
   }
 
   public void setPosition(int x, int y) {
@@ -95,7 +100,7 @@ public class SelectionWidget implements Renderable, GuiEventListener {
     this.outputWidgets.clear();
     recipeList.forEach(data -> {
       if (!data.getOutput().isEmpty()) {
-        this.outputWidgets.add(new OutputWidget(data));
+        this.outputWidgets.add(new OutputWidget(this.sprites, data));
       }
     });
     this.updateButtonPositions();

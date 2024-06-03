@@ -19,6 +19,7 @@ package com.illusivesoulworks.polymorph.api.client.widget;
 
 import com.illusivesoulworks.polymorph.api.common.base.IRecipePair;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.datafixers.util.Pair;
 import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -33,12 +34,14 @@ public class OutputWidget extends AbstractWidget {
 
   private final ItemStack output;
   private final ResourceLocation resourceLocation;
+  private final Pair<WidgetSprites, WidgetSprites> sprites;
   private boolean highlighted = false;
 
-  public OutputWidget(IRecipePair recipePair) {
+  public OutputWidget(Pair<WidgetSprites, WidgetSprites> sprites, IRecipePair recipePair) {
     super(0, 0, 25, 25, Component.empty());
     this.output = recipePair.getOutput();
     this.resourceLocation = recipePair.getResourceLocation();
+    this.sprites = sprites;
   }
 
   @Override
@@ -46,8 +49,7 @@ public class OutputWidget extends AbstractWidget {
                            float partialTicks) {
     Minecraft minecraft = Minecraft.getInstance();
     PoseStack poseStack = guiGraphics.pose();
-    WidgetSprites sprite =
-        this.highlighted ? AbstractRecipesWidget.CURRENT_OUTPUT : AbstractRecipesWidget.OUTPUT;
+    WidgetSprites sprite = this.highlighted ? this.sprites.getSecond() : this.sprites.getFirst();
     ResourceLocation texture = sprite.enabled();
 
     if (this.getX() + 25 > mouseX && this.getX() <= mouseX &&
